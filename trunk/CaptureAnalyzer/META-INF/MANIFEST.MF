@@ -21,4 +21,6 @@ Export-Package: capanalyzer,
  capanalyzer.handlers,
  capanalyzer.model
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-ClassPath: lib/mysql-connector-java-5.1.13-bin.jar,
+ .
 
