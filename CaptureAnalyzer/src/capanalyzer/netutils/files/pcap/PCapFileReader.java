@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import capanalyzer.netutils.files.CaptureFileBlock;
 import capanalyzer.netutils.files.CaptureFilePacketHeader;
 import capanalyzer.netutils.files.CaptureFileReader;
+import capanalyzer.netutils.files.erf.ErfPacketHeader;
 
 
 /**
@@ -29,6 +30,10 @@ public class PCapFileReader implements CaptureFileReader
 	private String myFileName = null;
 
 	private InputStream myInStrm = null;
+	
+	private long bytesRead = 0;
+	
+	private long capFileSizeInBytes = 0;
 
 	private PCapFileHeader myPcapFileHeader = null;
 	
@@ -61,6 +66,8 @@ public class PCapFileReader implements CaptureFileReader
 	{
 		myInStrm = new FileInputStream(new File(theFileName));
 		readHeader(myInStrm);
+		capFileSizeInBytes = (new File(theFileName)).length();
+		bytesRead = PCapFileHeader.HEADER_SIZE;
 	}
 
 	/**
@@ -99,6 +106,8 @@ public class PCapFileReader implements CaptureFileReader
 			{
 				throw new IOException("Corrputed file!!!");
 			}
+			bytesRead += PCapPacketHeader.HEADER_SIZE + myPHDR.pktlenUint32;
+				
 			return toReturn;
 		}
 		return null;
@@ -294,5 +303,21 @@ public class PCapFileReader implements CaptureFileReader
 		PCapFileHeader hdr =  rd.getPcapFileHeader();
 		rd.close();
 		return hdr;
+	}
+	
+	/**
+	 * @return the bytesRead
+	 */
+	public synchronized long getBytesRead()
+	{
+		return bytesRead;
+	}
+	
+	/**
+	 * @return the capFileSizeInBytes
+	 */
+	public synchronized long getCapFileSizeInBytes()
+	{
+		return capFileSizeInBytes;
 	}
 }
