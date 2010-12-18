@@ -20,6 +20,10 @@ public class ErfFileReader implements CaptureFileReader
 {
 	private static final int MAX_PACKET_SIZE = 65356;
 	
+	private long bytesRead = 0;
+	
+	private long capFileSizeInBytes = 0;
+	
 	private String myFileName = null;
 
 	private InputStream myInStrm = null;
@@ -45,15 +49,16 @@ public class ErfFileReader implements CaptureFileReader
 
 	/**
 	 * init input stream according to file name.
-	 * read the cap file header so will be ready to read next packet.
 	 * @param theFileName
 	 * @throws IOException
 	 */
 	private void initStream(String theFileName) throws IOException
 	{
 		myInStrm = new FileInputStream(new File(theFileName));
+		capFileSizeInBytes = (new File(theFileName)).length();
+		bytesRead = 0;
 	}
-	
+
 	/**
 	 * return the next packet in the files.
 	 * @param in
@@ -76,6 +81,8 @@ public class ErfFileReader implements CaptureFileReader
 				throw new IOException("Corrputed file!!!");
 			}
 			in.skip(myPHDR.pktRlen16Uint - myPHDR.pktWlen16Uint - ErfPacketHeader.HEADER_SIZE);
+			bytesRead += ErfPacketHeader.HEADER_SIZE + myPHDR.pktWlen16Uint + (myPHDR.pktRlen16Uint - myPHDR.pktWlen16Uint - ErfPacketHeader.HEADER_SIZE);
+			
 			return toReturn;
 		}
 		return null;
@@ -251,5 +258,21 @@ public class ErfFileReader implements CaptureFileReader
 	{
 		ErfFileReader rd = new ErfFileReader();
 		return rd.getAllPktsHeaders(fileName);
+	}
+	
+	/**
+	 * @return the bytesRead
+	 */
+	public synchronized long getBytesRead()
+	{
+		return bytesRead;
+	}
+	
+	/**
+	 * @return the capFileSizeInBytes
+	 */
+	public synchronized long getCapFileSizeInBytes()
+	{
+		return capFileSizeInBytes;
 	}
 }

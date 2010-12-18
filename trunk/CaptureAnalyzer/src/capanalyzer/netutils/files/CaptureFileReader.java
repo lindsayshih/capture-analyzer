@@ -30,4 +30,15 @@ public interface CaptureFileReader
 	 * @throws IOException
 	 */
 	public CaptureFileBlock readNextBlock() throws IOException;
+	
+	
+	/**
+	 * @return the bytesRead
+	 */
+	public long getBytesRead();
+	
+	/**
+	 * @return the capFileSizeInBytes
+	 */
+	public long getCapFileSizeInBytes();
 }
