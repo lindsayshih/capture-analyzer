@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import capanalyzer.netutils.files.CaptureFileBlock;
+import capanalyzer.netutils.files.CaptureFilePacketHeader;
 import capanalyzer.netutils.files.CaptureFileReader;
 
 
@@ -148,7 +150,7 @@ public class PCapFileReader implements CaptureFileReader
 	 * @return array of packets headers.
 	 * @throws IOException
 	 */
-	protected PCapPacketHeader[] getAllPktsHeaders(String fileName) throws IOException
+	protected CaptureFilePacketHeader[] getAllPktsHeaders(String fileName) throws IOException
 	{
 		InputStream in = null;
 		try
@@ -163,7 +165,7 @@ public class PCapFileReader implements CaptureFileReader
 				in.skip(ph.pktlenUint32);
 				ph = new PCapPacketHeader();
 			}
-			return (PCapPacketHeader[]) tmp.toArray(new PCapPacketHeader[] {});
+			return (CaptureFilePacketHeader[]) tmp.toArray(new PCapPacketHeader[] {});
 		}
 		finally
 		{
@@ -189,7 +191,7 @@ public class PCapFileReader implements CaptureFileReader
 	 * @return next block, return null on end of file
 	 * @throws IOException
 	 */
-	public PCapBlock readNextBlock() throws IOException
+	public CaptureFileBlock readNextBlock() throws IOException
 	{
 		byte[] nextpkt = ReadNextPacket();
 		if (nextpkt == null)
@@ -274,7 +276,7 @@ public class PCapFileReader implements CaptureFileReader
 	 * @return array of packets headers.
 	 * @throws IOException
 	 */
-	public static PCapPacketHeader[] getPktsHeaders(String fileName) throws IOException
+	public static CaptureFilePacketHeader[] getPktsHeaders(String fileName) throws IOException
 	{
 		PCapFileReader rd = new PCapFileReader();
 		return rd.getAllPktsHeaders(fileName);

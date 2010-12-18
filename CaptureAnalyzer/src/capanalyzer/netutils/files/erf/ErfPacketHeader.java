@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import capanalyzer.netutils.build.ByteUtils;
+import capanalyzer.netutils.files.CaptureFilePacketHeader;
 
 
 /**
@@ -69,7 +70,7 @@ import capanalyzer.netutils.build.ByteUtils;
  * @author roni bar-yanai 
  */
 
-public class ErfPacketHeader
+public class ErfPacketHeader implements CaptureFilePacketHeader
 {
 	public static final int HEADER_SIZE = 18;
 
