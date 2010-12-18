@@ -1,5 +1,8 @@
 package capanalyzer.netutils.files.erf;
 
+import capanalyzer.netutils.files.CaptureFileBlock;
+import capanalyzer.netutils.files.CaptureFilePacketHeader;
+
 
 /**
  * class for holding complete erf block.<br>
@@ -8,7 +11,7 @@ package capanalyzer.netutils.files.erf;
  * @author roni bar yanai
  *
  */
-public class ErfBlock
+public class ErfBlock implements CaptureFileBlock
 {
 	
 	private ErfPacketHeader myPktHdr = null;
@@ -26,18 +29,16 @@ public class ErfBlock
 		this.myData = data;
 	}
 
-	/**
-	 * 
-	 * @return the packet ErfPacketHeader
+	/* (non-Javadoc)
+	 * @see capanalyzer.netutils.files.erf.CaptureFileBlock#getMyPktHdr()
 	 */
-	public ErfPacketHeader getMyPktHdr()
+	public CaptureFilePacketHeader getMyPktHdr()
 	{
 		return myPktHdr;
 	}
 
-	/**
-	 * 
-	 * @return the packet as byte array.
+	/* (non-Javadoc)
+	 * @see capanalyzer.netutils.files.erf.CaptureFileBlock#getMyData()
 	 */
 	public byte[] getMyData()
 	{

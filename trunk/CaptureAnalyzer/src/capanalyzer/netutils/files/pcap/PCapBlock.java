@@ -1,5 +1,8 @@
 package capanalyzer.netutils.files.pcap;
 
+import capanalyzer.netutils.files.CaptureFileBlock;
+import capanalyzer.netutils.files.CaptureFilePacketHeader;
+
 
 /**
  * class for holding complete libpcap block.<br>
@@ -8,7 +11,7 @@ package capanalyzer.netutils.files.pcap;
  * @author roni bar yanai
  *
  */
-public class PCapBlock
+public class PCapBlock implements CaptureFileBlock
 {
 	
 	private PCapPacketHeader myPktHdr = null;
@@ -29,7 +32,7 @@ public class PCapBlock
 	/* (non-Javadoc)
 	 * @see capanalyzer.netutils.files.pcap.CaptureFileBlock#getMyPktHdr()
 	 */
-	public PCapPacketHeader getMyPktHdr()
+	public CaptureFilePacketHeader getMyPktHdr()
 	{
 		return myPktHdr;
 	}

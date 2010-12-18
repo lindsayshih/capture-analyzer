@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import capanalyzer.netutils.build.ByteUtils;
+import capanalyzer.netutils.files.CaptureFilePacketHeader;
 
 
 
@@ -23,7 +24,7 @@ import capanalyzer.netutils.build.ByteUtils;
  * @author roni bar-yanai 
  */
 
-public class PCapPacketHeader
+public class PCapPacketHeader implements CaptureFilePacketHeader
 {
 	public static final int HEADER_SIZE = 16;
 	
@@ -66,8 +67,8 @@ public class PCapPacketHeader
 		return this;
 	}
 	
-	/**
-	 * @return the header as little indian.
+	/* (non-Javadoc)
+	 * @see capanalyzer.netutils.files.pcap.CaptureFilePacketHeader#getAsByteArray()
 	 */
 	public byte[] getAsByteArray()
 	{
@@ -89,9 +90,8 @@ public class PCapPacketHeader
 		return myOriginalCopy;
 	}
 
-	/**
-	 *  (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	/* (non-Javadoc)
+	 * @see capanalyzer.netutils.files.pcap.CaptureFilePacketHeader#toString()
 	 */
 	public String toString()
 	{
@@ -159,9 +159,8 @@ public class PCapPacketHeader
 		return timeValSec32Uint;
 	}
 	
-	/**
-	 * 
-	 * @return
+	/* (non-Javadoc)
+	 * @see capanalyzer.netutils.files.pcap.CaptureFilePacketHeader#getTime()
 	 */
 	public long getTime()
 	{

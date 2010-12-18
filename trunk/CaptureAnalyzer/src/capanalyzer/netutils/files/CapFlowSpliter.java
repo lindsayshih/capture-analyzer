@@ -20,7 +20,6 @@ import capanalyzer.netutils.build.UDPPacket;
 import capanalyzer.netutils.files.pcap.PCapFileException;
 import capanalyzer.netutils.files.pcap.PCapFileHeader;
 import capanalyzer.netutils.files.pcap.PCapFileReader;
-import capanalyzer.netutils.files.pcap.PCapPacketHeader;
 import capanalyzer.netutils.utils.LineArgs;
 
 
@@ -66,7 +65,7 @@ public class CapFlowSpliter
 		byte[][] rawdata = CaptureFileUtils.readCapRawData(theFileName);
 		
 		myFilehdr = PCapFileReader.getPcapFileHeader(theFileName);
-		PCapPacketHeader[] pktHdrsArr = PCapFileReader.getPktsHeaders(theFileName);
+		CaptureFilePacketHeader[] pktHdrsArr = PCapFileReader.getPktsHeaders(theFileName);
 
 		HashMap<String,ArrayList<PacketStruct>> hash = new HashMap<String,ArrayList<PacketStruct>>(); // will contain all flows by thier five touple as a key
 
@@ -150,7 +149,7 @@ public class CapFlowSpliter
 		// read all cap to raw data array
 		byte[][] rawdata = PCapFileReader.readCapRawData(theFileName);
 		myFilehdr = PCapFileReader.getPcapFileHeader(theFileName);
-		PCapPacketHeader[] pktHdrsArr = PCapFileReader.getPktsHeaders(theFileName);
+		CaptureFilePacketHeader[] pktHdrsArr = PCapFileReader.getPktsHeaders(theFileName);
 
 		// will holds the flows where their five touple is the key.
 		HashMap<String,ArrayList<PacketStruct>> hash = new HashMap<String,ArrayList<PacketStruct>>();
@@ -647,7 +646,7 @@ public class CapFlowSpliter
 	{
 		byte[] rawData = null;
 
-		PCapPacketHeader pktHdr = null;
+		CaptureFilePacketHeader pktHdr = null;
 
 		int flowtype = 0;
 
@@ -655,7 +654,7 @@ public class CapFlowSpliter
 		 * @param theHdr
 		 * @param theData
 		 */
-		public PacketStruct(PCapPacketHeader theHdr, byte[] theData, int thetype)
+		public PacketStruct(CaptureFilePacketHeader theHdr, byte[] theData, int thetype)
 		{
 			flowtype = thetype;
 			pktHdr = theHdr;

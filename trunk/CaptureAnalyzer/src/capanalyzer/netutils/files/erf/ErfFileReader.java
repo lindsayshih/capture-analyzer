@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import capanalyzer.netutils.files.CaptureFileBlock;
 import capanalyzer.netutils.files.CaptureFileReader;
 
 
@@ -166,7 +167,7 @@ public class ErfFileReader implements CaptureFileReader
 	 * @return next block, return null on end of file
 	 * @throws IOException
 	 */
-	public ErfBlock readNextBlock() throws IOException
+	public CaptureFileBlock readNextBlock() throws IOException
 	{
 		byte[] nextpkt = ReadNextPacket();
 		if (nextpkt == null)

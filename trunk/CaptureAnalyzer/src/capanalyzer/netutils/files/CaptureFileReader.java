@@ -22,4 +22,12 @@ public interface CaptureFileReader
 	 * @throws IOException
 	 */
 	public byte[] ReadNextPacket() throws IOException;
+	
+	/**
+	 * read next block in file.
+	 * @return next block in file as an object with the header and raw byte array, 
+	 * if no more blocks are available then will return null.
+	 * @throws IOException
+	 */
+	public CaptureFileBlock readNextBlock() throws IOException;
 }
