@@ -12,7 +12,7 @@ public class FlowsDataStructure
 	private static FlowsDataStructure instance = null;
 	private List<Map<String, FlowInfoStruct>> listOfTupleMaps = null;
 	
-	private int numberOfMapsToUse = 4;
+	private int numberOfMapsToUse = 8;
 	
 	private FlowsDataStructure()
 	{
@@ -66,5 +66,37 @@ public class FlowsDataStructure
 		}
 		
 		return allFlowFiveTuples;
+	}
+	
+	public List<FiveTuple> getAllFlowsThatShouldAgeFiveTuples(long theLastPacketTime, long theAgingTime)
+	{
+		
+		List<FiveTuple> allFlowThatShouldAgeFiveTuples = new ArrayList<FiveTuple>();
+		
+		for (int i = 0; i < numberOfMapsToUse; i++)
+		{
+			for (String key : listOfTupleMaps.get(i).keySet())
+			{
+				if(listOfTupleMaps.get(i).get(key).getLastTime() < theLastPacketTime-theAgingTime)
+				{
+					allFlowThatShouldAgeFiveTuples.add(listOfTupleMaps.get(i).get(key).getFiveTuple());
+				}
+			}
+		}
+		
+		return allFlowThatShouldAgeFiveTuples;
+	}
+	
+	public long[] getSizesOfAllMaps()
+	{
+		long[] numOfTuplesInMaps = new long[listOfTupleMaps.size()];
+		
+		for (int i = 0; i < listOfTupleMaps.size(); i++)
+		{
+			numOfTuplesInMaps[i] = listOfTupleMaps.get(i).size();
+			
+		}
+		
+		return numOfTuplesInMaps;
 	}
 }
