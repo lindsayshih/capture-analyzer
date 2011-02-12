@@ -1,8 +1,5 @@
 package capanalyzer.netutils;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import capanalyzer.netutils.build.FiveTuple;
 
 public class FlowInfoStruct
@@ -19,8 +16,18 @@ public class FlowInfoStruct
 
 	private FiveTuple fiveTuple;
 	
-	private List<Long> packetTimes;
-	private List<Integer> packetSizes;
+	private long startTime;
+	private long lastTime;
+	
+	private int minPacketSize = Integer.MAX_VALUE;
+	private int maxPacketSize = 0;
+	private long totalPacketSizes;
+	
+	private long minIpg = Integer.MAX_VALUE;
+	private long maxIpg = 0;
+	private long totalIpg;
+	
+	private long numberOfPackets = 0;
 
 	public FlowInfoStruct(FiveTuple theFlowTuple)
 	{
@@ -33,19 +40,8 @@ public class FlowInfoStruct
 		destinationIp = theFlowTuple.getMyDstIp();
 		sourcePort = theFlowTuple.getMySrcPort();
 		destinationPort = theFlowTuple.getMyDstPort();
-
-		packetTimes = new ArrayList<Long>();
-		packetSizes = new ArrayList<Integer>();
-	}
-
-	public void addNewPacketTime(long thePacketTime)
-	{
-		packetTimes.add(thePacketTime);
-	}
-
-	public void addNewPacketSize(int thePacketSize)
-	{
-		packetSizes.add(thePacketSize);
+		
+		flowType = theFlowTuple.getMyType();
 	}
 
 	/**
@@ -105,27 +101,144 @@ public class FlowInfoStruct
 	}
 	
 	/**
-	 * @return the packetTimes
-	 */
-	public List<Long> getPacketTimes()
-	{
-		return packetTimes;
-	}
-
-	/**
-	 * @return the packetSizes
-	 */
-	public List<Integer> getPacketSizes()
-	{
-		return packetSizes;
-	}
-	
-	/**
 	 * @return the fiveTuple
 	 */
 	public FiveTuple getFiveTuple()
 	{
 		return fiveTuple;
+	}
+	
+	/**
+	 * @return the startTime
+	 */
+	public long getStartTime()
+	{
+		return startTime;
+	}
+
+	/**
+	 * @param startTime the startTime to set
+	 */
+	public void setStartTime(long startTime)
+	{
+		this.startTime = startTime;
+	}
+
+	/**
+	 * @return the lastTime
+	 */
+	public long getLastTime()
+	{
+		return lastTime;
+	}
+
+	/**
+	 * @param lastTime the lastTime to set
+	 */
+	public void setLastTime(long lastTime)
+	{
+		this.lastTime = lastTime;
+	}
+
+	/**
+	 * @return the minPacketSize
+	 */
+	public int getMinPacketSize()
+	{
+		return minPacketSize;
+	}
+
+	/**
+	 * @return the maxPacketSize
+	 */
+	public int getMaxPacketSize()
+	{
+		return maxPacketSize;
+	}
+
+	/**
+	 * @param packetSize the maxPacketSize/minPacketSize to set
+	 */
+	public void addPacketSize(int packetSize)
+	{
+		if(packetSize>this.maxPacketSize)
+			this.maxPacketSize = packetSize;
+			
+		if(packetSize<this.minPacketSize)
+			this.minPacketSize = packetSize;
+		
+		this.totalPacketSizes += packetSize;
+	}
+
+	/**
+	 * @return the totalPacketSizes
+	 */
+	public long getTotalPacketSizes()
+	{
+		return totalPacketSizes;
+	}
+
+	/**
+	 * @return the minIpg
+	 */
+	public long getMinIpg()
+	{
+		return minIpg;
+	}
+
+	/**
+	 * @return the maxIpg
+	 */
+	public long getMaxIpg()
+	{
+		return maxIpg;
+	}
+
+	/**
+	 * @param currentTime
+	 */
+	public void addIpg(long currentTime)
+	{
+		long ipg;
+		
+		if(numberOfPackets>1)
+		{
+			ipg = currentTime - this.lastTime;
+			if(ipg<0)
+				ipg = Math.abs(ipg);
+			
+			if(ipg>this.maxIpg)
+				this.maxIpg = ipg;
+				
+			if(ipg<this.minIpg)
+				this.minIpg = ipg;
+			
+			this.totalIpg += ipg;
+		}
+	}
+
+	/**
+	 * @return the totalIpg
+	 */
+	public long getTotalIpg()
+	{
+		return totalIpg;
+	}
+
+	/**
+	 * @return the numberOfPackets
+	 */
+	public long getNumberOfPackets()
+	{
+		return numberOfPackets;
+	}
+
+	/**
+	 * @param numberOfPackets the numberOfPackets to set
+	 */
+	public void incrementNumberOfPackets()
+	{
+		this.numberOfPackets++;;
 	}
 
 }
