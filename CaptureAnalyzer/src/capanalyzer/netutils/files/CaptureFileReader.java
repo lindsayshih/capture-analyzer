@@ -21,7 +21,7 @@ public interface CaptureFileReader
 	 *    available then will return null.
 	 * @throws IOException
 	 */
-	public byte[] ReadNextPacket() throws IOException;
+	public byte[] readNextPacket() throws IOException;
 	
 	/**
 	 * read next block in file.
