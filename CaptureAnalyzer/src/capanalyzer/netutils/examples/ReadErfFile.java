@@ -2,8 +2,11 @@ package capanalyzer.netutils.examples;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import capanalyzer.netutils.NetUtilsException;
 import capanalyzer.netutils.build.FiveTuple;
 import capanalyzer.netutils.build.IPPacket;
@@ -15,6 +18,9 @@ import capanalyzer.netutils.files.CaptureFileReader;
 
 public class ReadErfFile
 {
+	static String erfFile = "e:\\capture_012_15_06_2009.erf";
+	//static String erfFile = "c:\\capture_012_15_06_2009.erf";
+	
 	public static void main(String[] args) throws IOException, NetUtilsException
 	{
 	/*	ErfPacketHeader[] temp = ErfFileReader.getPktsHeaders("c:\\capture_012_15_06_2009.erf");
@@ -24,7 +30,14 @@ public class ReadErfFile
 		}
 		*/
 		
-		HashSet<String> toupleHash = new HashSet<String>();
+		List<Map<String, Long>> listOfTupleMaps = new ArrayList<Map<String, Long>>();
+		for (int i = 0; i < 4; i++)
+		{
+			listOfTupleMaps.add(new HashMap<String, Long>());
+			
+		}
+		//Map<String, Long> toupleHash = new HashMap<String, Long>();
+		
 		long numOfTcpPackets=0;
 		long numOfUdpPackets=0;
 		long numOfNonTcpUdpPackets=0;
@@ -33,14 +46,18 @@ public class ReadErfFile
 		long numOfUdpFlows=0;
 		long numOfNonTcpUdpFlows=0;
 		
-		CaptureFileReader frd = CaptureFileFactory.createCaptureFileReader("c:\\capture_012_15_06_2009.erf");
+		int agingTime = 300 * 1000000;
+		
+		CaptureFileReader frd = CaptureFileFactory.createCaptureFileReader(erfFile);
 		CaptureFileBlock nextblock = null;
+		long packetTime;
 		
 		long start = System.currentTimeMillis();
 		try
 		{		
 			while ((nextblock = frd.readNextBlock()) != null)
 			{
+				packetTime = nextblock.getMyPktHdr().getTime();
 				if (IPPacket.statIsIpPacket(nextblock.getMyData()))
 				{
 					FiveTuple flowTouple = new FiveTuple(nextblock.getMyData(), true);
@@ -57,13 +74,11 @@ public class ReadErfFile
 						numOfNonTcpUdpPackets++;
 						break;
 					}
-									
-					if (toupleHash.contains(flowTouple.getKey()))
-						continue;
-					else
+					
+					if(listOfTupleMaps.get(Math.abs(flowTouple.hashCode())%4).put(flowTouple.getKey(), packetTime)==null)
 					{
-						toupleHash.add(flowTouple.getKey());
-						//System.out.println(flowTouple.toString());
+						//System.out.println("packetTime: " + packetTime);
+						
 						switch (flowTouple.getMyType())
 						{
 						case IPPacketType.TCP:
@@ -77,13 +92,36 @@ public class ReadErfFile
 							break;
 						}
 						
-						System.out.println("Percentage Done: " + frd.getBytesRead()/(float)frd.getCapFileSizeInBytes());
-					}
+						if((numOfTcpFlows+numOfUdpFlows+numOfNonTcpUdpFlows)%2000==0)
+							System.out.println("Percentage Done: " + frd.getBytesRead()/(float)frd.getCapFileSizeInBytes());
+						
+		/*				if((numOfTcpFlows+numOfUdpFlows+numOfNonTcpUdpFlows)%200000==0)
+						{
+							for (int i = 0; i < 4; i++)
+							{							
+								if(listOfTupleMaps.get(i).size()>500000)
+								{
+									System.out.println("Checking for flows to age in Map number " + i + ". Number of flows Before aging: " + listOfTupleMaps.get(i).size());	
+									Iterator<String> it = listOfTupleMaps.get(i).keySet().iterator();
+									while (it.hasNext())
+									{
+										String key = it.next();
+										if (packetTime - listOfTupleMaps.get(i).get(key) > agingTime)
+										{
+											it.remove();
+										}
+									}	
+									System.out.println("Number of flows After aging: " + listOfTupleMaps.get(i).size());
+								}
+							}
+						}
+			*/		}
 				}
 			}
 		} catch (Exception e)
 		{
 			System.out.println("Exception Caught");
+			e.printStackTrace();
 		}
 		
 		long end = System.currentTimeMillis();
