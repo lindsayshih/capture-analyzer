@@ -33,8 +33,9 @@ public class BaseAnalyzer implements IPacketAnalyzer
 
 	public void finalizeFlow(FiveTuple theFlowTuple)
 	{
-		flowsDataStructureForDb.addNewFlow(theFlowTuple);
 		FlowInfoStruct tempFlowDataStructure = flowsDataStructure.getFlowInfoStruct(theFlowTuple);
+
+		flowsDataStructureForDb.addNewFlow(theFlowTuple);
 		FlowInfoStructForDB tempFlowDataStructureForDB = flowsDataStructureForDb.getFlowInfoForDbStruct(theFlowTuple);
 		tempFlowDataStructureForDB.addLongResult("flow_id", tempFlowDataStructure.getFlowId());
 		tempFlowDataStructureForDB.addLongResult("source_ip", tempFlowDataStructure.getSourceIp());
@@ -42,20 +43,22 @@ public class BaseAnalyzer implements IPacketAnalyzer
 		tempFlowDataStructureForDB.addLongResult("destination_ip", tempFlowDataStructure.getDestinationIp());
 		tempFlowDataStructureForDB.addIntegerResult("destination_port", tempFlowDataStructure.getDestinationPort());
 		tempFlowDataStructureForDB.addIntegerResult("flow_type", tempFlowDataStructure.getFlowType());
-	
+
 		tempFlowDataStructureForDB.addLongResult("start_time", tempFlowDataStructure.getStartTime());
-		tempFlowDataStructureForDB.addLongResult("duration", Math.abs((tempFlowDataStructure.getLastTime()-tempFlowDataStructure.getStartTime())));	
+		tempFlowDataStructureForDB.addLongResult("duration", Math.abs((tempFlowDataStructure.getLastTime() - tempFlowDataStructure.getStartTime())));
 		tempFlowDataStructureForDB.addLongResult("number_of_packets", tempFlowDataStructure.getNumberOfPackets());
-		
+
 		tempFlowDataStructureForDB.addLongResult("size", tempFlowDataStructure.getTotalPacketSizes());
 		tempFlowDataStructureForDB.addIntegerResult("min_packet_size", tempFlowDataStructure.getMinPacketSize());
-		tempFlowDataStructureForDB.addIntegerResult("average_packet_size", (int)(tempFlowDataStructure.getTotalPacketSizes()/tempFlowDataStructure.getNumberOfPackets()));
-		tempFlowDataStructureForDB.addIntegerResult("max_packet_size", tempFlowDataStructure.getMinPacketSize());
-		
-		tempFlowDataStructureForDB.addLongResult("min_ipg", (tempFlowDataStructure.getNumberOfPackets()>1)?tempFlowDataStructure.getMinIpg():0);
-		tempFlowDataStructureForDB.addLongResult("average_ipg", (tempFlowDataStructure.getNumberOfPackets()>1)?(tempFlowDataStructure.getTotalIpg()/(tempFlowDataStructure.getNumberOfPackets()-1)):0);
-		tempFlowDataStructureForDB.addLongResult("max_ipg", (tempFlowDataStructure.getNumberOfPackets()>1)?tempFlowDataStructure.getMaxIpg():0);	
+		tempFlowDataStructureForDB.addIntegerResult("average_packet_size", (int) (tempFlowDataStructure.getTotalPacketSizes() / tempFlowDataStructure.getNumberOfPackets()));
+		tempFlowDataStructureForDB.addIntegerResult("max_packet_size", tempFlowDataStructure.getMaxPacketSize());
+
+		tempFlowDataStructureForDB.addLongResult("min_ipg", (tempFlowDataStructure.getNumberOfPackets() > 1) ? tempFlowDataStructure.getMinIpg() : 0);
+		tempFlowDataStructureForDB.addLongResult("average_ipg", (tempFlowDataStructure.getNumberOfPackets() > 1) ? (tempFlowDataStructure.getTotalIpg() / (tempFlowDataStructure.getNumberOfPackets() - 1)) : 0);
+		tempFlowDataStructureForDB.addLongResult("max_ipg", (tempFlowDataStructure.getNumberOfPackets() > 1) ? tempFlowDataStructure.getMaxIpg() : 0);
 
 		flowsDataStructure.removeFlow(theFlowTuple);
+		tempFlowDataStructureForDB = null;
+		tempFlowDataStructure = null;
 	}
 }

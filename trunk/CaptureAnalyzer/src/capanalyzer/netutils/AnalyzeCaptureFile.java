@@ -17,7 +17,7 @@ import capanalyzer.netutils.files.CaptureFileReader;
 
 public class AnalyzeCaptureFile
 {
-	// static String erfFile = "e:\\capture_012_15_06_2009.erf";
+	//static String erfFile = "e:\\capture_012_15_06_2009.erf";
 	static String erfFile = "d:\\capture_012_15_06_2009.erf";
 
 	/** JDBC driver name */
@@ -35,7 +35,10 @@ public class AnalyzeCaptureFile
 	@SuppressWarnings("serial")
 	public static void main(String[] args) throws IOException, NetUtilsException
 	{
-		long agingTime = 60 * 1000000;
+		boolean takeReadAndStoreInMapTime = true;
+		Statisics.initStatsArrays();
+		
+		long agingTime = 120 * 1000000;
 		List<IPacketAnalyzer> packetAnalyzers = new ArrayList<IPacketAnalyzer>();
 		packetAnalyzers.add(new BaseAnalyzer());
 
@@ -54,9 +57,17 @@ public class AnalyzeCaptureFile
 
 		try
 		{
+			long beforeReadAndStoreInMapTime = 0;
 			long startTime = System.currentTimeMillis();
 			while ((nextblock = frd.readNextBlock()) != null)
 			{
+				if(takeReadAndStoreInMapTime == true)
+				{
+					takeReadAndStoreInMapTime = false;
+					beforeReadAndStoreInMapTime = System.currentTimeMillis();
+				}
+					
+					
 				if (IPPacket.statIsIpPacket(nextblock.getMyData()))
 				{
 					for (IPacketAnalyzer packetAnalyzer : packetAnalyzers)
@@ -68,15 +79,19 @@ public class AnalyzeCaptureFile
 						firstPacketTime = nextblock.getMyPktHdr().getTime();
 
 					counter++;
-					if (counter % 200000 == 0)
+					if (counter % 5000000 == 0)
 					{
+						long afterReadAndStoreInMapTime = System.currentTimeMillis();
+						Statisics.addStatToReadAndStoreInMap(afterReadAndStoreInMapTime-beforeReadAndStoreInMapTime);
+						System.out.println("ReadAndStoreInMapTime= " + (afterReadAndStoreInMapTime-beforeReadAndStoreInMapTime));
+						takeReadAndStoreInMapTime = true;
+						
 						System.out.println("Percentage Done: " + frd.getBytesRead() / (float) frd.getCapFileSizeInBytes());
 
 						currentPacketTime = nextblock.getMyPktHdr().getTime();
 						listOfFlowsThatShouldAgeFiveTuples = flowsDataStructure.getAllFlowsThatShouldAgeFiveTuples(currentPacketTime, agingTime);
 
-						System.out.println("Real packet time from start: " + (((currentPacketTime - firstPacketTime) / (1000000 * 60 * 60)) % 24) + ":"
-								+ ((currentPacketTime - firstPacketTime) / (1000000 * 60) % 60) + ":" + (((currentPacketTime - firstPacketTime) / 1000000) % 60));
+						System.out.println("Real packet time from start: " + (long)(((currentPacketTime - firstPacketTime) / (long)(1000000 * 60 * 60)) % 24L) + ":" + (long)((currentPacketTime - firstPacketTime) / (long)(1000000 * 60) % 60L) + ":" + (long)(((currentPacketTime - firstPacketTime) / 1000000L) % 60L));
 
 						for (FiveTuple fiveTuple : listOfFlowsThatShouldAgeFiveTuples)
 						{
@@ -108,7 +123,7 @@ public class AnalyzeCaptureFile
 							Map<String, Long> resultLongMap = flowsDataStructureForDb.getFlowInfoForDbStruct(listOfFlowsThatShouldAgeFiveTuples.get(0)).getLongMap();
 							Set<String> allIntResults = resultIntegerMap.keySet();
 							Set<String> allLongResults = resultLongMap.keySet();
-							;
+							
 							for (String intKey : allIntResults)
 								allResultNames.add(intKey);
 							for (String longKey : allLongResults)
@@ -121,11 +136,13 @@ public class AnalyzeCaptureFile
 							}
 							resultNames = resultNames.substring(0, resultNames.length() - 1);
 							resultValues = resultValues.substring(0, resultValues.length() - 1);
-
+							
+							
+							long beforeInsertTime = System.currentTimeMillis();
 							pstmt = con.prepareStatement("INSERT INTO all_flows(" + resultNames + ") VALUES (" + resultValues + ")");
 							con.setAutoCommit(false);
 							con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-
+					
 							for (FiveTuple fiveTuple : listOfFlowsThatShouldAgeFiveTuples)
 							{
 								resultIntegerMap = flowsDataStructureForDb.getFlowInfoForDbStruct(fiveTuple).getIntegerMap();
@@ -139,22 +156,39 @@ public class AnalyzeCaptureFile
 										pstmt.setLong(j + 1, resultLongMap.get(allResultNames.get(j)));
 								}
 								pstmt.addBatch();
-
+					
 								resultIntegerMap.clear();
 								resultLongMap.clear();
+								resultIntegerMap = null;
+								resultLongMap = null;
 								flowsDataStructureForDb.removeFlow(fiveTuple);
 							}
-
+					
 							pstmt.executeBatch();
 							con.commit();
-
+							pstmt.clearBatch();
+							pstmt.close();
+							long afterInsertTime = System.currentTimeMillis();
+							Statisics.addStatToDbInserts(afterInsertTime-beforeInsertTime);
+							System.out.println("DbInsertsTime= " + (afterInsertTime-beforeInsertTime));
+							
 							listOfFlowsThatShouldAgeFiveTuples.clear();
+							allResultNames.clear();
+							allIntResults.clear();
+							allLongResults.clear();
+							listOfFlowsThatShouldAgeFiveTuples = null;
+							allResultNames = null;
+							allIntResults = null;
+							allLongResults = null;
 						}
+						
+						System.gc();
 					}
 				}
 			}
 
 			System.out.println("Total Time = " + (System.currentTimeMillis() - startTime) / 1000 + " Seconds");
+			Statisics.exportToCsvFile("c:\\CaptureAnalyzerStats.csv");
 
 		} catch (Exception e)
 		{

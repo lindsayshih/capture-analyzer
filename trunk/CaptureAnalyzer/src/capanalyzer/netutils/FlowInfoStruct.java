@@ -21,11 +21,11 @@ public class FlowInfoStruct
 	
 	private int minPacketSize = Integer.MAX_VALUE;
 	private int maxPacketSize = 0;
-	private long totalPacketSizes;
+	private long totalPacketSizes = 0;
 	
-	private long minIpg = Integer.MAX_VALUE;
+	private long minIpg = Long.MAX_VALUE;
 	private long maxIpg = 0;
-	private long totalIpg;
+	private long totalIpg = 0;
 	
 	private long numberOfPackets = 0;
 
@@ -198,12 +198,10 @@ public class FlowInfoStruct
 	 * @param currentTime
 	 */
 	public void addIpg(long currentTime)
-	{
-		long ipg;
-		
+	{	
 		if(numberOfPackets>1)
 		{
-			ipg = currentTime - this.lastTime;
+			long ipg = currentTime - this.lastTime;
 			if(ipg<0)
 				ipg = Math.abs(ipg);
 			

@@ -43,4 +43,9 @@ public class FlowsDataStructureForDB
 	{
 		flowsForDbMap.remove(theFlowTuple.getKey());
 	}
+	
+	public int getNumberOfFlows()
+	{
+		return flowsForDbMap.size();
+	}
 }
