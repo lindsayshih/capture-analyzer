@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import capanalyzer.netutils.MyBufferedInputStream;
 import capanalyzer.netutils.files.CaptureFileBlock;
 import capanalyzer.netutils.files.CaptureFileReader;
 
@@ -27,6 +28,10 @@ public class ErfFileReader implements CaptureFileReader
 	private String myFileName = null;
 
 	private InputStream myInStrm = null;
+	
+	private InputStream inBuffer = null;
+	
+	//MappedFileBuffer myMappedfile;
 	
 	// holds last read packet libcap pkt hdr;
 	private ErfPacketHeader myPHDR = null;
@@ -55,6 +60,10 @@ public class ErfFileReader implements CaptureFileReader
 	private void initStream(String theFileName) throws IOException
 	{
 		myInStrm = new FileInputStream(new File(theFileName));
+		inBuffer = new MyBufferedInputStream(myInStrm, 32*1024);
+		
+		//File tempFile = new File(theFileName);
+		//myMappedfile = new MappedFileBuffer(tempFile, 1000000, true);
 		capFileSizeInBytes = (new File(theFileName)).length();
 		bytesRead = 0;
 	}
@@ -76,17 +85,41 @@ public class ErfFileReader implements CaptureFileReader
 				throw new IOException("Corrupted file !!! illegal packet size : "+myPHDR.pktWlen16Uint);
 			
 			byte[] toReturn = new byte[(int) myPHDR.pktWlen16Uint];
-			if (in.read(toReturn) != toReturn.length)
+			if (in.read(toReturn, 0, toReturn.length) != toReturn.length)
 			{
-				throw new IOException("Corrputed file!!!");
+				System.out.println("SIZES DONT MATCH !!!!");
+				//throw new IOException("Corrputed file!!!");
 			}
-			in.skip(myPHDR.pktRlen16Uint - myPHDR.pktWlen16Uint - ErfPacketHeader.HEADER_SIZE);
+			long skipped = in.skip(myPHDR.pktRlen16Uint - myPHDR.pktWlen16Uint - ErfPacketHeader.HEADER_SIZE);
+			if(skipped != myPHDR.pktRlen16Uint - myPHDR.pktWlen16Uint - ErfPacketHeader.HEADER_SIZE)
+				throw new IOException("Skip did not skip required amount of bytes!!!");
+			
 			bytesRead += ErfPacketHeader.HEADER_SIZE + myPHDR.pktWlen16Uint + (myPHDR.pktRlen16Uint - myPHDR.pktWlen16Uint - ErfPacketHeader.HEADER_SIZE);
 			
 			return toReturn;
 		}
+		
 		return null;
 	}
+	
+	
+	
+/*	public byte[] readNextPacket() throws IOException
+	{
+		myPHDR = new ErfPacketHeader();
+		myPHDR = myPHDR.readNextPcktHeader(myMappedfile, bytesRead);
+
+		if (myPHDR.pktWlen16Uint > MAX_PACKET_SIZE)
+			throw new IOException("Corrupted file !!! illegal packet size : " + myPHDR.pktWlen16Uint);
+
+		byte[] toReturn = new byte[myPHDR.pktWlen16Uint];
+		toReturn = myMappedfile.getBytes(bytesRead, myPHDR.pktWlen16Uint);
+
+		bytesRead += ErfPacketHeader.HEADER_SIZE + myPHDR.pktWlen16Uint + (myPHDR.pktRlen16Uint - myPHDR.pktWlen16Uint - ErfPacketHeader.HEADER_SIZE);
+
+		return toReturn;
+	}
+*/	
 
 	/**
 	 * return the cap file raw data as array of packets when each packet is
@@ -160,15 +193,19 @@ public class ErfFileReader implements CaptureFileReader
 	 * @return the next packet in cap file. will return null if no more packets.
 	 * @throws IOException
 	 */
-	public byte[] ReadNextPacket() throws IOException
+	public byte[] readNextPacket() throws IOException
 	{
-		if (myInStrm == null)
+		if (myInStrm == null 
+				|| inBuffer == null
+				)
 		{
 			initStream(myFileName);
 		}
-		return readNextPacket(myInStrm);
+		
+		return readNextPacket(inBuffer);
+		//return readNextPacket(myInStrm);
 	}
-	
+
 	/**
 	 * 
 	 * @return next block, return null on end of file
@@ -176,7 +213,7 @@ public class ErfFileReader implements CaptureFileReader
 	 */
 	public CaptureFileBlock readNextBlock() throws IOException
 	{
-		byte[] nextpkt = ReadNextPacket();
+		byte[] nextpkt = readNextPacket();
 		if (nextpkt == null)
 		{
 			return null;
@@ -190,6 +227,7 @@ public class ErfFileReader implements CaptureFileReader
 	 */
 	public void close()
 	{
+		
 		if (myInStrm != null)
 		{
 			try
@@ -200,6 +238,18 @@ public class ErfFileReader implements CaptureFileReader
 			{}
 			myInStrm = null;
 		}
+		
+		if (inBuffer != null)
+		{
+			try
+			{
+				inBuffer.close();
+			}
+			catch (IOException e)
+			{}
+			inBuffer = null;
+		}
+		
 	}
 	
 	/**
