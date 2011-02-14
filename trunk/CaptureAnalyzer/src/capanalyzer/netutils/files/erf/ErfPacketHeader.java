@@ -103,9 +103,11 @@ public class ErfPacketHeader implements CaptureFilePacketHeader
 	public ErfPacketHeader readNextPcktHeader(InputStream in) throws IOException
 	{
 		byte[] tmp = new byte[HEADER_SIZE];
-		if (in.read(tmp) != tmp.length)
+		if (in.read(tmp, 0, HEADER_SIZE) != tmp.length)
+		{	
 			return null;
-
+		}
+	
 		myOriginalCopy = tmp;
 
 		timeValMsec32Uint = ByteUtils.getBytePenOrderTo_uint32(tmp, 0);
@@ -121,6 +123,28 @@ public class ErfPacketHeader implements CaptureFilePacketHeader
 		return this;
 	}
 
+/*	
+	public ErfPacketHeader readNextPcktHeader(MappedFileBuffer theMappedfile, long theIndex) throws IOException
+	{
+		byte[] tmp = new byte[HEADER_SIZE];
+		tmp = theMappedfile.getBytes(theIndex, HEADER_SIZE);
+	
+		myOriginalCopy = tmp;
+
+		timeValMsec32Uint = ByteUtils.getBytePenOrderTo_uint32(tmp, 0);
+		timeValSec32Uint = ByteUtils.getBytePenOrderTo_uint32(tmp, 4);
+
+		pktType16Uint = ByteUtils.getByteNetOrderTo_uint8(tmp, 8);
+		pktFlags16Uint = ByteUtils.getByteNetOrderTo_uint8(tmp, 9);
+		pktRlen16Uint = ByteUtils.getByteNetOrderTo_uint16(tmp, 10);
+		pktLctrColor16Uint = ByteUtils.getByteNetOrderTo_uint16(tmp, 12);
+		pktWlen16Uint = ByteUtils.getByteNetOrderTo_uint16(tmp, 14);
+		pktPadAndOffset16Uint = ByteUtils.getByteNetOrderTo_uint16(tmp, 16);
+
+		return this;
+	}
+*/	
+	
 	/**
 	 * @return the header as little indian.
 	 */
@@ -311,7 +335,7 @@ public class ErfPacketHeader implements CaptureFilePacketHeader
 	 */
 	public long getTime()
 	{
-		return timeValSec32Uint * 1000000 + timeValMsec32Uint;
+		return timeValSec32Uint * 1000000 + (long)(timeValMsec32Uint*0.000233);
 	}
 
 	private long pcapRead32(long num)
