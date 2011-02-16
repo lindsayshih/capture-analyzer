@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import capanalyzer.netutils.MyBufferedInputStream;
+import capanalyzer.netutils.Statisics;
 import capanalyzer.netutils.files.CaptureFileBlock;
 import capanalyzer.netutils.files.CaptureFileReader;
 
@@ -60,7 +61,7 @@ public class ErfFileReader implements CaptureFileReader
 	private void initStream(String theFileName) throws IOException
 	{
 		myInStrm = new FileInputStream(new File(theFileName));
-		inBuffer = new MyBufferedInputStream(myInStrm, 32*1024);
+		inBuffer = new MyBufferedInputStream(myInStrm, Statisics.getSizeOfBuffer()*1024);
 		
 		//File tempFile = new File(theFileName);
 		//myMappedfile = new MappedFileBuffer(tempFile, 1000000, true);
