@@ -126,7 +126,7 @@ public class AnalyzeCaptureFile
 									firstPacketTime = nextblock.getMyPktHdr().getTime();
 			
 								counter++;
-								if (counter % 5000000 == 0)
+								if (counter % 1000000 == 0)
 								{
 									long afterReadAndStoreInMapTime = System.currentTimeMillis();
 									Statisics.addStatToReadAndStoreInMap(afterReadAndStoreInMapTime-beforeReadAndStoreInMapTime);
