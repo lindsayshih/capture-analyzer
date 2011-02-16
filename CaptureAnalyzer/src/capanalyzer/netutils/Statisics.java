@@ -12,6 +12,10 @@ public class Statisics
 	static List<Long> dbInserts;
 	static List<Long> readAndStoreInMap;
 	
+	static int numOfDbPartitions;
+	static int numOfMaps;
+	static int sizeOfBuffer;
+	
 	public static void initStatsArrays()
 	{
 		dbInserts = new ArrayList<Long>();
@@ -246,6 +250,54 @@ public class Statisics
 			System.out.println("Problem close -->");
 		}
 		return true;
+	}
+	
+	/**
+	 * @return the numOfDbPartitions
+	 */
+	public static int getNumOfDbPartitions()
+	{
+		return numOfDbPartitions;
+	}
+
+	/**
+	 * @param numOfDbPartitions the numOfDbPartitions to set
+	 */
+	public static void setNumOfDbPartitions(int numOfDbPartitions)
+	{
+		Statisics.numOfDbPartitions = numOfDbPartitions;
+	}
+
+	/**
+	 * @return the sizeOfBuffer
+	 */
+	public static int getSizeOfBuffer()
+	{
+		return sizeOfBuffer;
+	}
+
+	/**
+	 * @param sizeOfBuffer the sizeOfBuffer to set
+	 */
+	public static void setSizeOfBuffer(int sizeOfBuffer)
+	{
+		Statisics.sizeOfBuffer = sizeOfBuffer;
+	}
+	
+	/**
+	 * @return the numOfMaps
+	 */
+	public static int getNumOfMaps()
+	{
+		return numOfMaps;
+	}
+
+	/**
+	 * @param numOfMaps the numOfMaps to set
+	 */
+	public static void setNumOfMaps(int numOfMaps)
+	{
+		Statisics.numOfMaps = numOfMaps;
 	}
 	
 }
