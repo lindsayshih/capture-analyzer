@@ -12,7 +12,7 @@ public class FlowsDataStructure
 	private static FlowsDataStructure instance = null;
 	private List<Map<String, FlowInfoStruct>> listOfTupleMaps = null;
 	
-	private int numberOfMapsToUse = 8;
+	private int numberOfMapsToUse = Statisics.getNumOfMaps();
 	
 	private FlowsDataStructure()
 	{
