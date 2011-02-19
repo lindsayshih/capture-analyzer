@@ -80,14 +80,7 @@
             name="Messages">
       </view>
       <view
-            class="capanalyzer.NavigationView"
-            icon="icons/silk/server.png"
-            id="capanalyzer.simplenavigateview"
-            name="Navigation"
-            restorable="true">
-      </view>
-      <view
-            category="org.eclipse.u"
+            category="org.eclipse.ui"
             class="org.eclipse.ui.ExtensionFactory:progressView"
             icon="icons/silk/pview.gif"
             id="org.eclipse.ui.views.ProgressView"
