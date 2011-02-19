@@ -26,10 +26,10 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
-import capanalyzer.model.Server;
+import capanalyzer.model.Database;
 
 
-public class CreateServerPage extends WizardPage {
+public class CreateDatabasePage extends WizardPage {
 
 	private static HashMap<Control, ControlDecoration> decoratorMap = new HashMap<Control, ControlDecoration>();
 
@@ -69,13 +69,13 @@ public class CreateServerPage extends WizardPage {
 
 	}
 
-	private final Server server;
+	private final Database database;
 
-	public CreateServerPage(Server server) {
+	public CreateDatabasePage(Database database) {
 		super("wizardPage");
-		this.server = server;
-		setTitle("Create Server Connection");
-		setDescription("Please enter information to create a server connection.");
+		this.database = database;
+		setTitle("Create Database Connection");
+		setDescription("Please enter information to create a database connection.");
 	}
 
 	public void createControl(Composite parent) {
@@ -113,12 +113,12 @@ public class CreateServerPage extends WizardPage {
 
 		final DataBindingContext dbc = new DataBindingContext();
 
-		bind(dbc, hostnameText, server, "hostname", new HostnameValidator());
-		bind(dbc, usernameText, server, "username", new NotEmptyValidator(
+		bind(dbc, hostnameText, database, "hostname", new HostnameValidator());
+		bind(dbc, usernameText, database, "username", new NotEmptyValidator(
 				"username"));
-		bind(dbc, passwordText, server, "password", new NotEmptyValidator(
+		bind(dbc, passwordText, database, "password", new NotEmptyValidator(
 				"password"));
-		bind(dbc, portText, server, "port", null);
+		bind(dbc, portText, database, "port", null);
 
 		final AggregateValidationStatus aggregateValidationStatus = new AggregateValidationStatus(
 				dbc.getValidationStatusProviders(),

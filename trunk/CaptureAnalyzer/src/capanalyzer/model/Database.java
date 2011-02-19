@@ -3,50 +3,50 @@ package capanalyzer.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Server extends ModelObject {
+public class Database extends ModelObject {
 	
-	private List<Folder> folders;
+	private List<CaptureDbTable> captureDbTables;
 	
 	private String hostname;
 	private String username;
 	private String password;
 	private int port;
-	private Folder junkFolder;
+	private CaptureDbTable junkCaptureDbTable;
 
-	public Server() {
-		folders = new ArrayList<Folder>();
-		addFolder(new Folder("Inbox"));
-		addFolder(new Folder("Drafts"));
-		addFolder(new Folder("Sent"));
-		addFolder(new Folder("Junk"));
-		addFolder(new Folder("Trash"));
+	public Database() {
+		captureDbTables = new ArrayList<CaptureDbTable>();
+		addCaptureDbTable(new CaptureDbTable("Inbox"));
+		addCaptureDbTable(new CaptureDbTable("Drafts"));
+		addCaptureDbTable(new CaptureDbTable("Sent"));
+		addCaptureDbTable(new CaptureDbTable("Junk"));
+		addCaptureDbTable(new CaptureDbTable("Trash"));
 	}
 
-	public Folder getJunkFolder() {
-		return junkFolder;
+	public CaptureDbTable getJunkCaptureDbTable() {
+		return junkCaptureDbTable;
 	}
 
-	public void addFolder(final Folder child) {
-		folders.add(child);
-		child.setServer(this);
+	public void addCaptureDbTable(final CaptureDbTable child) {
+		captureDbTables.add(child);
+		child.setDatabase(this);
 		// We could provide old and new values, but (null, null) is allowed by
 		// the beans spec.
-		firePropertyChange("folders", null, null);
+		firePropertyChange("captureDbTables", null, null);
 		if (child.getName().equals("Junk")) {
-			junkFolder = child;
+			junkCaptureDbTable = child;
 		}
 	}
 
-	public void removeFolder(Folder child) {
-		folders.remove(child);
-		child.setServer(null);
+	public void removeCaptureDbTable(CaptureDbTable child) {
+		captureDbTables.remove(child);
+		child.setDatabase(null);
 		// We could provide old and new values, but (null, null) is allowed by
 		// the beans spec.
-		firePropertyChange("folders", null, null);
+		firePropertyChange("captureDbTables", null, null);
 	}
 
-	public List<Folder> getFolders() {
-		return folders;
+	public List<CaptureDbTable> getCaptureDbTables() {
+		return captureDbTables;
 	}
 
 	public Model getModel() {
@@ -86,13 +86,13 @@ public class Server extends ModelObject {
 	}
 
 	public String toString() {
-		return "Server( hostname=\"" + hostname + "\"" + ", username=\""
+		return "Database( hostname=\"" + hostname + "\"" + ", username=\""
 				+ username + "\"" + ", password=\"" + password + "\""
 				+ ", port=" + port + ")";
 	}
 
     Object getDefaultSelection() {
-		for (Folder f : folders) {
+		for (CaptureDbTable f : captureDbTables) {
 			if ("Inbox".equals(f.getName())) {
 				return f;
 			}
