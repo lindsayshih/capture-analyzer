@@ -35,7 +35,7 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.part.ViewPart;
 
-import capanalyzer.model.Folder;
+import capanalyzer.model.CaptureDbTable;
 import capanalyzer.model.Message;
 
 
@@ -178,10 +178,10 @@ public class MessageTableView extends ViewPart implements ISelectionListener {
 		if (selection instanceof IStructuredSelection) {
 			IStructuredSelection structuredSelection = (IStructuredSelection) selection;
 			Object element = structuredSelection.getFirstElement();
-			if (element instanceof Folder) {
-				Folder folder = (Folder) element;
-				selectedFolder.setValue(folder);
-				Message[] messages = folder.getMessages();
+			if (element instanceof CaptureDbTable) {
+				CaptureDbTable captureDbTable = (CaptureDbTable) element;
+				selectedFolder.setValue(captureDbTable);
+				Message[] messages = captureDbTable.getMessages();
 				if (messages.length > 0) {
 					tableViewer.setSelection(new StructuredSelection(messages[0]));
 				}
