@@ -5,32 +5,32 @@ import java.util.List;
 
 public class Model extends ModelObject {
 	private static Model model;
-	private List<Server> servers = new ArrayList<Server>();
+	private List<Database> databases = new ArrayList<Database>();
 
 	public Model() {
-		Server server = new Server();
-		server.setHostname("My Mail Server");
-		server.setPort(23);
-		server.setUsername("test");
-		addServer(server);
+		Database database = new Database();
+		database.setHostname("My Mail Database");
+		database.setPort(23);
+		database.setUsername("test");
+		addDatabase(database);
 	}
 	
-	public void addServer(final Server server) {
-		servers.add(server);
-		firePropertyChange("servers", null, null);
+	public void addDatabase(final Database database) {
+		databases.add(database);
+		firePropertyChange("databases", null, null);
 	}
 
-	public void removeServer(Server child) {
-		servers.remove(child);
-		firePropertyChange("servers", null, null);
+	public void removeDatabase(Database child) {
+		databases.remove(child);
+		firePropertyChange("databases", null, null);
 	}
 
-	public List<Server> getServers() {
-		return servers;
+	public List<Database> getDatabases() {
+		return databases;
 	}
 	
 	public Object getDefaultSelection() {
-		return servers.size() > 0 ? servers.get(0).getDefaultSelection() : null;
+		return databases.size() > 0 ? databases.get(0).getDefaultSelection() : null;
 	}
 
 	public static Model getInstance() {

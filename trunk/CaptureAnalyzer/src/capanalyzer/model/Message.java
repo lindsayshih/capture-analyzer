@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.Random;
 
 public class Message extends ModelObject {
-	private Folder folder;
+	private CaptureDbTable captureDbTable;
 	private int id;
 	private String subject;
 	private String from;
@@ -18,12 +18,12 @@ public class Message extends ModelObject {
 		this.body=body;
 	}
 
-	/* default*/ void setFolder(Folder folder) {
-		firePropertyChange("folder", this.folder, this.folder = folder);
+	/* default*/ void setCaptureDbTable(CaptureDbTable captureDbTable) {
+		firePropertyChange("captureDbTable", this.captureDbTable, this.captureDbTable = captureDbTable);
 	}
 
-	public Folder getFolder() {
-		return folder;
+	public CaptureDbTable getCaptureDbTable() {
+		return captureDbTable;
 	}
 
 	public String toString() {

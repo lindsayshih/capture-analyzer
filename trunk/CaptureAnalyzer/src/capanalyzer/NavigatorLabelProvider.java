@@ -7,8 +7,8 @@ import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
-import capanalyzer.model.Folder;
-import capanalyzer.model.Server;
+import capanalyzer.model.CaptureDbTable;
+import capanalyzer.model.Database;
 
 
 // This is an almost exact copy of MailLabelProvider, but it does not listen
@@ -23,24 +23,24 @@ public final class NavigatorLabelProvider extends LabelProvider {
 	private LocalResourceManager resourceManager = new LocalResourceManager(
 			JFaceResources.getResources());
 	
-	private ImageDescriptor serverImage;
-	private ImageDescriptor folderImage;
-	private ImageDescriptor junkFolderImage;
-	private ImageDescriptor draftsFolderImage;
-	private ImageDescriptor sentFolderImage;
-	private ImageDescriptor trashFolderImage;
+	private ImageDescriptor databaseImage;
+	private ImageDescriptor captureDbTableImage;
+	private ImageDescriptor junkCaptureDbTableImage;
+	private ImageDescriptor draftsCaptureDbTableImage;
+	private ImageDescriptor sentCaptureDbTableImage;
+	private ImageDescriptor trashCaptureDbTableImage;
 
 	public NavigatorLabelProvider() {
 		initializeImageDescriptors();
 	}
 
 	private void initializeImageDescriptors() {
-		serverImage = getDescriptor("server.png");
-		folderImage = getDescriptor("folder.png");
-		junkFolderImage = getDescriptor("folder_bug.png");
-		draftsFolderImage = getDescriptor("folder_edit.png");
-		sentFolderImage = getDescriptor("folder_go.png");
-		trashFolderImage = getDescriptor("folder_delete.png");
+		databaseImage = getDescriptor("server.png");
+		captureDbTableImage = getDescriptor("folder.png");
+		junkCaptureDbTableImage = getDescriptor("folder_bug.png");
+		draftsCaptureDbTableImage = getDescriptor("folder_edit.png");
+		sentCaptureDbTableImage = getDescriptor("folder_go.png");
+		trashCaptureDbTableImage = getDescriptor("folder_delete.png");
 	}
 
 	private ImageDescriptor getDescriptor(String fileName) {
@@ -49,32 +49,32 @@ public final class NavigatorLabelProvider extends LabelProvider {
 	}
 	
 	public String getText(Object element) {
-		if (element instanceof Server) {
-			return ((Server) element).getHostname();
+		if (element instanceof Database) {
+			return ((Database) element).getHostname();
 		}
-		if (element instanceof Folder) {
-			Folder folder = (Folder) element;
-			return folder.getName();
+		if (element instanceof CaptureDbTable) {
+			CaptureDbTable captureDbTable = (CaptureDbTable) element;
+			return captureDbTable.getName();
 		}
 		return null;
 	}
 
 	public Image getImage(Object element) {
-		if (element instanceof Server) {
-			return (Image) resourceManager.get(serverImage);
-		} else if (element instanceof Folder) {
+		if (element instanceof Database) {
+			return (Image) resourceManager.get(databaseImage);
+		} else if (element instanceof CaptureDbTable) {
 			// We really should use constants here
-			Folder folder = (Folder) element;
-			if ("junk".equalsIgnoreCase(folder.getName())) {
-				return (Image) resourceManager.get(junkFolderImage);
-			} else if ("drafts".equalsIgnoreCase(folder.getName())) {
-				return (Image) resourceManager.get(draftsFolderImage);
-			} else if ("sent".equalsIgnoreCase(folder.getName())) {
-				return (Image) resourceManager.get(sentFolderImage);
-			} else if ("trash".equalsIgnoreCase(folder.getName())) {
-				return (Image) resourceManager.get(trashFolderImage);
+			CaptureDbTable captureDbTable = (CaptureDbTable) element;
+			if ("junk".equalsIgnoreCase(captureDbTable.getName())) {
+				return (Image) resourceManager.get(junkCaptureDbTableImage);
+			} else if ("drafts".equalsIgnoreCase(captureDbTable.getName())) {
+				return (Image) resourceManager.get(draftsCaptureDbTableImage);
+			} else if ("sent".equalsIgnoreCase(captureDbTable.getName())) {
+				return (Image) resourceManager.get(sentCaptureDbTableImage);
+			} else if ("trash".equalsIgnoreCase(captureDbTable.getName())) {
+				return (Image) resourceManager.get(trashCaptureDbTableImage);
 			}
-			return (Image) resourceManager.get(folderImage);
+			return (Image) resourceManager.get(captureDbTableImage);
 		}
 		return null;
 	}

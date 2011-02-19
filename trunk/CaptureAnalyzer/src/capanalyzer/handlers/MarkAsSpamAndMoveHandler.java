@@ -10,7 +10,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import capanalyzer.model.Folder;
+import capanalyzer.model.CaptureDbTable;
 import capanalyzer.model.Message;
 
 
@@ -22,8 +22,8 @@ public class MarkAsSpamAndMoveHandler extends AbstractHandler implements
 	
 	static void markAndMoveMessage(Message msg) {
 		msg.setSpam(true);
-		Folder junk = msg.getFolder().getServer().getJunkFolder();
-		Folder current = msg.getFolder();
+		CaptureDbTable junk = msg.getCaptureDbTable().getDatabase().getJunkCaptureDbTable();
+		CaptureDbTable current = msg.getCaptureDbTable();
 		if (current != junk) {
 			current.removeMessage(msg);
 			junk.addMessage(msg);

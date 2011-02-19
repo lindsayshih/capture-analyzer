@@ -6,9 +6,9 @@ import org.eclipse.core.databinding.observable.masterdetail.IObservableFactory;
 import org.eclipse.jface.databinding.viewers.ObservableListTreeContentProvider;
 import org.eclipse.jface.databinding.viewers.TreeStructureAdvisor;
 
-import capanalyzer.model.Folder;
+import capanalyzer.model.CaptureDbTable;
 import capanalyzer.model.Model;
-import capanalyzer.model.Server;
+import capanalyzer.model.Database;
 
 
 public class MailContentProvider extends ObservableListTreeContentProvider {
@@ -22,10 +22,10 @@ public class MailContentProvider extends ObservableListTreeContentProvider {
 		return new IObservableFactory() {
 			public IObservable createObservable(Object parent) {
 				if (parent instanceof Model) {
-					return BeanProperties.list("servers").observe(parent);
+					return BeanProperties.list("databases").observe(parent);
 				}
-				if (parent instanceof Server) {
-					return BeanProperties.list("folders").observe(parent);
+				if (parent instanceof Database) {
+					return BeanProperties.list("captureDbTables").observe(parent);
 				}
 				return null;
 			}
@@ -37,11 +37,11 @@ public class MailContentProvider extends ObservableListTreeContentProvider {
 	private static TreeStructureAdvisor getTreeStructureAdvisor() {
 		return new TreeStructureAdvisor() {
 			public Object getParent(Object element) {
-				if (element instanceof Folder) {
-					return ((Folder) element).getServer();
+				if (element instanceof CaptureDbTable) {
+					return ((CaptureDbTable) element).getDatabase();
 				}
-				if (element instanceof Server) {
-					return ((Server) element).getModel();
+				if (element instanceof Database) {
+					return ((Database) element).getModel();
 				}
 				return super.getParent(element);
 			}

@@ -9,7 +9,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import capanalyzer.model.Folder;
+import capanalyzer.model.CaptureDbTable;
 import capanalyzer.model.Message;
 
 
@@ -28,8 +28,8 @@ public class DeleteMessageHandler extends AbstractHandler {
 	}
 
 	static void trashMessage(Message msg) {
-		Folder trash = getTrash(msg.getFolder().getServer().getFolders());
-		Folder current = msg.getFolder();
+		CaptureDbTable trash = getTrash(msg.getCaptureDbTable().getDatabase().getCaptureDbTables());
+		CaptureDbTable current = msg.getCaptureDbTable();
 		if (trash != current) {
 			current.removeMessage(msg);
 			trash.addMessage(msg);
@@ -38,10 +38,10 @@ public class DeleteMessageHandler extends AbstractHandler {
 		}
 	}
 
-	private static Folder getTrash(List<Folder> folders) {
-		for (Folder folder : folders) {
-			if ("Trash".equals(folder.getName())) {
-				return folder;
+	private static CaptureDbTable getTrash(List<CaptureDbTable> captureDbTables) {
+		for (CaptureDbTable captureDbTable : captureDbTables) {
+			if ("Trash".equals(captureDbTable.getName())) {
+				return captureDbTable;
 			}
 		}
 		return null;
