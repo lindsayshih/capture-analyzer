@@ -86,6 +86,14 @@
             name="Navigation"
             restorable="true">
       </view>
+      <view
+            category="org.eclipse.u"
+            class="org.eclipse.ui.ExtensionFactory:progressView"
+            icon="icons/silk/pview.gif"
+            id="org.eclipse.ui.views.ProgressView"
+            name="Progress View"
+            restorable="true">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
