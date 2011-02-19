@@ -7,14 +7,14 @@ import org.eclipse.core.commands.IHandler;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import capanalyzer.CreateServerWizard;
+import capanalyzer.CreateDatabaseWizard;
 
 
-public class CreateServerHandler extends AbstractHandler implements IHandler {
+public class CreateDatabaseHandler extends AbstractHandler implements IHandler {
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		WizardDialog dialog = new WizardDialog(HandlerUtil.getActiveWorkbenchWindow(event).getShell(),
-				new CreateServerWizard());
+				new CreateDatabaseWizard());
 		dialog.open();
 		return null;
 	}

@@ -3,14 +3,14 @@ package capanalyzer.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Folder extends ModelObject {
+public class CaptureDbTable extends ModelObject {
 
 	private List<Message> messages;
 
 	private String name;
-	private Server server;
+	private Database database;
 
-	public Folder(String name) {
+	public CaptureDbTable(String name) {
 		this.name = name;
 		messages = new ArrayList<Message>();
 
@@ -30,13 +30,13 @@ public class Folder extends ModelObject {
 
 	public void addMessage(Message message) {
 		messages.add(message);
-		message.setFolder(this);
+		message.setCaptureDbTable(this);
 		firePropertyChange("messages", null, null);
 	}
 
 	public void removeMessage(Message message) {
 		messages.remove(message);
-		message.setFolder(null);
+		message.setCaptureDbTable(null);
 		// We could provide old and new values, but (null, null) is allowed by
 		// the beans spec.
 		firePropertyChange("messages", null, null);
@@ -53,15 +53,15 @@ public class Folder extends ModelObject {
 		return name;
 	}
 
-	public Server getServer() {
-		return server;
+	public Database getDatabase() {
+		return database;
 	}
 
-	void setServer(Server server) {
-		this.server = server;
+	void setDatabase(Database database) {
+		this.database = database;
 		// We could provide old and new values, but (null, null) is allowed by
 		// the beans spec.
-		firePropertyChange("server", null, null);
+		firePropertyChange("database", null, null);
 	}
 
 }

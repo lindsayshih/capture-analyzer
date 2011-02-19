@@ -13,19 +13,19 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.handlers.HandlerUtil;
 
-import capanalyzer.model.Folder;
+import capanalyzer.model.CaptureDbTable;
 import capanalyzer.model.Message;
 
 
-public class SyncWithServerHandler extends AbstractHandler implements IHandler {
+public class SyncWithDatabaseHandler extends AbstractHandler implements IHandler {
 
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		ISelection currentSelection = HandlerUtil.getCurrentSelection(event);
 		if (currentSelection instanceof IStructuredSelection) {
 			Object selected = ((IStructuredSelection) currentSelection)
 					.getFirstElement();
-			if (selected instanceof Folder) {
-				final Folder folder = (Folder) selected;
+			if (selected instanceof CaptureDbTable) {
+				final CaptureDbTable captureDbTable = (CaptureDbTable) selected;
 				Job syncJob = new Job("Synchronize") {
 					protected IStatus run(IProgressMonitor monitor) {
 						monitor.beginTask(getName(), 50);
@@ -50,7 +50,7 @@ public class SyncWithServerHandler extends AbstractHandler implements IHandler {
 							// but that may change in the future.)
 							Display.getDefault().asyncExec(new Runnable() {
 								public void run() {
-									folder.addMessage(Message.createExample(-1));
+									captureDbTable.addMessage(Message.createExample(-1));
 								}
 							});
 							monitor.worked(1);
