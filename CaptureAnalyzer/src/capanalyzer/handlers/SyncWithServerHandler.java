@@ -28,13 +28,19 @@ public class SyncWithServerHandler extends AbstractHandler implements IHandler {
 				final Folder folder = (Folder) selected;
 				Job syncJob = new Job("Synchronize") {
 					protected IStatus run(IProgressMonitor monitor) {
-						monitor.beginTask(getName(), 3);
-						for (int i = 0; i < 3; i++) {
+						monitor.beginTask(getName(), 50);
+						for (int i = 0; i < 50; i++) {
 							try {
 								Thread.sleep(400);
 							} catch (InterruptedException e) {
 								Thread.currentThread().interrupt();
 							}
+							
+							if (monitor.isCanceled())	 
+								return Status.CANCEL_STATUS;
+							
+							monitor.subTask("Stage" + i);
+							
 							// Note: our model is not thread safe. We are using
 							// Display.asyncExec to make sure that the model
 							// is only accessed and changed from the UI thread.
@@ -53,6 +59,7 @@ public class SyncWithServerHandler extends AbstractHandler implements IHandler {
 						return Status.OK_STATUS;
 					}
 				};
+				syncJob.setUser(true);
 				syncJob.schedule();
 			}
 		}
