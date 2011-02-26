@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
+import capanalyzer.GlobalConfig;
 import capanalyzer.netutils.MyBufferedInputStream;
-import capanalyzer.netutils.Statisics;
 import capanalyzer.netutils.files.CaptureFileBlock;
 import capanalyzer.netutils.files.CaptureFileReader;
 
@@ -31,8 +31,6 @@ public class ErfFileReader implements CaptureFileReader
 	private InputStream myInStrm = null;
 	
 	private InputStream inBuffer = null;
-	
-	//MappedFileBuffer myMappedfile;
 	
 	// holds last read packet libcap pkt hdr;
 	private ErfPacketHeader myPHDR = null;
@@ -61,10 +59,8 @@ public class ErfFileReader implements CaptureFileReader
 	private void initStream(String theFileName) throws IOException
 	{
 		myInStrm = new FileInputStream(new File(theFileName));
-		inBuffer = new MyBufferedInputStream(myInStrm, Statisics.getSizeOfBuffer()*1024);
+		inBuffer = new MyBufferedInputStream(myInStrm, GlobalConfig.CaptureFileReadParams.getSizeOfBuffer()*1024);
 		
-		//File tempFile = new File(theFileName);
-		//myMappedfile = new MappedFileBuffer(tempFile, 1000000, true);
 		capFileSizeInBytes = (new File(theFileName)).length();
 		bytesRead = 0;
 	}
@@ -196,15 +192,12 @@ public class ErfFileReader implements CaptureFileReader
 	 */
 	public byte[] readNextPacket() throws IOException
 	{
-		if (myInStrm == null 
-				|| inBuffer == null
-				)
+		if (myInStrm == null || inBuffer == null)
 		{
 			initStream(myFileName);
 		}
 		
 		return readNextPacket(inBuffer);
-		//return readNextPacket(myInStrm);
 	}
 
 	/**
