@@ -28,6 +28,8 @@ public class FlowInfoStruct
 	private long totalIpg = 0;
 	
 	private long numberOfPackets = 0;
+	
+	private boolean tcpFullStart = false;
 
 	public FlowInfoStruct(FiveTuple theFlowTuple)
 	{
@@ -237,6 +239,22 @@ public class FlowInfoStruct
 	public void incrementNumberOfPackets()
 	{
 		this.numberOfPackets++;;
+	}
+	
+	/**
+	 * @return the tcpFullStart
+	 */
+	public boolean isTcpFullStart()
+	{
+		return tcpFullStart;
+	}
+
+	/**
+	 * @param tcpFullStart the tcpFullStart to set
+	 */
+	public void setTcpFullStart(boolean tcpFullStart)
+	{
+		this.tcpFullStart = tcpFullStart;
 	}
 
 }
