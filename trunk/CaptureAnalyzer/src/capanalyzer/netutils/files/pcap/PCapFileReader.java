@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import capanalyzer.netutils.files.CaptureFileBlock;
 import capanalyzer.netutils.files.CaptureFilePacketHeader;
 import capanalyzer.netutils.files.CaptureFileReader;
-import capanalyzer.netutils.files.erf.ErfPacketHeader;
 
 
 /**
@@ -186,7 +185,7 @@ public class PCapFileReader implements CaptureFileReader
 	 * @return the next packet in cap file. will return null if no more packets.
 	 * @throws IOException
 	 */
-	public byte[] ReadNextPacket() throws IOException
+	public byte[] readNextPacket() throws IOException
 	{
 		if (myInStrm == null)
 		{
@@ -202,7 +201,7 @@ public class PCapFileReader implements CaptureFileReader
 	 */
 	public CaptureFileBlock readNextBlock() throws IOException
 	{
-		byte[] nextpkt = ReadNextPacket();
+		byte[] nextpkt = readNextPacket();
 		if (nextpkt == null)
 		{
 			return null;
