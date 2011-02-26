@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import capanalyzer.GlobalConfig;
 import capanalyzer.netutils.build.FiveTuple;
 
 public class FlowsDataStructure
@@ -12,7 +13,7 @@ public class FlowsDataStructure
 	private static FlowsDataStructure instance = null;
 	private List<Map<String, FlowInfoStruct>> listOfTupleMaps = null;
 	
-	private int numberOfMapsToUse = Statisics.getNumOfMaps();
+	private int numberOfMapsToUse = GlobalConfig.CaptureFileReadParams.getNumberOfMaps();
 	
 	private FlowsDataStructure()
 	{
