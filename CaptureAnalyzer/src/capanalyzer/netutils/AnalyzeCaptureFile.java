@@ -196,16 +196,32 @@ public class AnalyzeCaptureFile
 				con.createStatement().execute("DROP TABLE IF EXISTS `capture_analyzer`.`all_flows`");
 
 			con.createStatement().execute(
-					"CREATE TABLE  `capture_analyzer`.`all_flows` " + "(`flow_id` int(10) unsigned NOT NULL DEFAULT '0'," + "`source_ip` bigint(20) unsigned NOT NULL DEFAULT '0',"
-							+ "`source_port` int(10) unsigned NOT NULL DEFAULT '0'," + "`destination_ip` bigint(20) unsigned NOT NULL DEFAULT '0',"
-							+ "`destination_port` int(10) unsigned NOT NULL DEFAULT '0'," + "`flow_type` int(10) unsigned NOT NULL DEFAULT '0',"
-							+ "`start_time` bigint(20) unsigned NOT NULL DEFAULT '0'," + "`duration` bigint(20) unsigned NOT NULL DEFAULT '0',"
-							+ "`number_of_packets` bigint(20) unsigned NOT NULL DEFAULT '0'," + "`size` int(10) unsigned NOT NULL DEFAULT '0',"
-							+ "`min_packet_size` int(10) unsigned NOT NULL DEFAULT '0'," + "`average_packet_size` int(10) unsigned NOT NULL DEFAULT '0',"
-							+ "`max_packet_size` int(10) unsigned NOT NULL DEFAULT '0'," + "`min_ipg` bigint(20) unsigned NOT NULL DEFAULT '0',"
-							+ "`average_ipg` bigint(20) unsigned NOT NULL DEFAULT '0'," + "`max_ipg` bigint(20) unsigned NOT NULL DEFAULT '0') "
-							+ "ENGINE=InnoDB DEFAULT CHARSET=latin1 " + "PARTITION BY HASH(flow_id) " + "PARTITIONS " + GlobalConfig.Database.getNumberOfPartitions()
-							+ "; ");
+					"CREATE TABLE  `capture_analyzer`.`all_flows` " + 
+					"(`flow_id` int(10) unsigned NOT NULL DEFAULT '0'," + 
+					"`source_ip` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
+					"`source_port` int(10) unsigned NOT NULL DEFAULT '0'," + 
+					"`destination_ip` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
+					"`destination_port` int(10) unsigned NOT NULL DEFAULT '0'," + 
+					"`flow_type` int(10) unsigned NOT NULL DEFAULT '0'," + 
+					"`is_tcp_full` int(10) unsigned NOT NULL DEFAULT '0'," +
+					"`start_time` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
+					"`duration` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
+					"`number_of_packets` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
+					"`size` int(10) unsigned NOT NULL DEFAULT '0'," + 
+					"`min_packet_size` int(10) unsigned NOT NULL DEFAULT '0'," + 
+					"`average_packet_size` int(10) unsigned NOT NULL DEFAULT '0'," + 
+					"`max_packet_size` int(10) unsigned NOT NULL DEFAULT '0'," + 
+					"`min_ipg` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
+					"`average_ipg` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
+					"`max_ipg` bigint(20) unsigned NOT NULL DEFAULT '0') " + 
+					"ENGINE=MyISAM DEFAULT CHARSET=latin1 " + 
+					"PARTITION BY RANGE (flow_type) (" +
+					"PARTITION ICMP VALUES LESS THAN (2)," +
+					"PARTITION OTHER1 VALUES LESS THAN (6)," +
+					"PARTITION TCP VALUES LESS THAN (7)," +
+					"PARTITION OTHER2 VALUES LESS THAN (17)," +
+					"PARTITION UDP VALUES LESS THAN (18)," +
+					"PARTITION OTHER3 VALUES LESS THAN MAXVALUE);");
 		} catch (SQLException e1)
 		{
 			e1.printStackTrace();
