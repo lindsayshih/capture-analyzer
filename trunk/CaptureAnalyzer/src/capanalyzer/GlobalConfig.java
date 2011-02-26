@@ -83,7 +83,7 @@ public class GlobalConfig
 		static int numberOfMaps = 16;
 		static int numberOfDbMaps = 4;
 		static int sizeOfBuffer = 32;
-		static int agingTime = 120;
+		static int agingTime = 300;
 
 		/**
 		 * @return the numberOfMaps
