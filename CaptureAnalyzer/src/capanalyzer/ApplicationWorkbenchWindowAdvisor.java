@@ -37,11 +37,11 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor
 				GlobalConfig.Database.setUsername(myIni.get("Database", "username"));
 			if(myIni.containsParameter("Database", "password")) 
 				GlobalConfig.Database.setPassword(myIni.get("Database", "password"));
-			if(myIni.containsParameter("Database", "numberOfPartitions")) 
-				GlobalConfig.Database.setNumberOfPartitions(myIni.getAsInt("Database", "numberOfPartitions", GlobalConfig.Database.getNumberOfPartitions()+""));
 			
 			if(myIni.containsParameter("CaptureFileReadParams", "numberOfMaps")) 
 				GlobalConfig.CaptureFileReadParams.setNumberOfMaps(myIni.getAsInt("CaptureFileReadParams", "numberOfMaps", GlobalConfig.CaptureFileReadParams.getNumberOfMaps()+""));
+			if(myIni.containsParameter("CaptureFileReadParams", "numberOfDbMaps")) 
+				GlobalConfig.CaptureFileReadParams.setNumberOfDbMaps(myIni.getAsInt("CaptureFileReadParams", "numberOfDbMaps", GlobalConfig.CaptureFileReadParams.getNumberOfDbMaps()+""));
 			if(myIni.containsParameter("CaptureFileReadParams", "sizeOfBuffer")) 
 				GlobalConfig.CaptureFileReadParams.setSizeOfBuffer(myIni.getAsInt("CaptureFileReadParams", "sizeOfBuffer", GlobalConfig.CaptureFileReadParams.getSizeOfBuffer()+""));
 			if(myIni.containsParameter("CaptureFileReadParams", "agingTime")) 
