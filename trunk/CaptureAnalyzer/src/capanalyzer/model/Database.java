@@ -3,17 +3,20 @@ package capanalyzer.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Database extends ModelObject {
-	
+public class Database extends ModelObject
+{
+
 	private List<CaptureDbTable> captureDbTables;
-	
+
 	private String hostname;
+	private String schema;
 	private String username;
 	private String password;
-	private int port;
+
 	private CaptureDbTable junkCaptureDbTable;
 
-	public Database() {
+	public Database()
+	{
 		captureDbTables = new ArrayList<CaptureDbTable>();
 		addCaptureDbTable(new CaptureDbTable("Inbox"));
 		addCaptureDbTable(new CaptureDbTable("Drafts"));
@@ -22,78 +25,90 @@ public class Database extends ModelObject {
 		addCaptureDbTable(new CaptureDbTable("Trash"));
 	}
 
-	public CaptureDbTable getJunkCaptureDbTable() {
+	public CaptureDbTable getJunkCaptureDbTable()
+	{
 		return junkCaptureDbTable;
 	}
 
-	public void addCaptureDbTable(final CaptureDbTable child) {
+	public void addCaptureDbTable(final CaptureDbTable child)
+	{
 		captureDbTables.add(child);
 		child.setDatabase(this);
-		// We could provide old and new values, but (null, null) is allowed by
-		// the beans spec.
-		firePropertyChange("captureDbTables", null, null);
-		if (child.getName().equals("Junk")) {
+		firePropertyChange("captureDbTables", null, null); // We could provide old and new values, but (null, null) is allowed by the beans spec.
+		if (child.getName().equals("Junk"))
+		{
 			junkCaptureDbTable = child;
 		}
 	}
 
-	public void removeCaptureDbTable(CaptureDbTable child) {
+	public void removeCaptureDbTable(CaptureDbTable child)
+	{
 		captureDbTables.remove(child);
 		child.setDatabase(null);
-		// We could provide old and new values, but (null, null) is allowed by
-		// the beans spec.
-		firePropertyChange("captureDbTables", null, null);
+		firePropertyChange("captureDbTables", null, null); // We could provide old and new values, but (null, null) is allowed by the beans spec.
 	}
 
-	public List<CaptureDbTable> getCaptureDbTables() {
+	public List<CaptureDbTable> getCaptureDbTables()
+	{
 		return captureDbTables;
 	}
 
-	public Model getModel() {
+	public Model getModel()
+	{
 		return Model.getInstance();
 	}
 
-	public String getHostname() {
+	public String getHostname()
+	{
 		return hostname;
 	}
 
-	public void setHostname(String hostname) {
+	public void setHostname(String hostname)
+	{
 		firePropertyChange("hostname", this.hostname, this.hostname = hostname);
 	}
 
-	public String getUsername() {
+	public String getUsername()
+	{
 		return username;
 	}
 
-	public void setUsername(String username) {
+	public void setUsername(String username)
+	{
 		firePropertyChange("username", this.username, this.username = username);
 	}
 
-	public String getPassword() {
+	public String getPassword()
+	{
 		return password;
 	}
 
-	public void setPassword(String password) {
+	public void setPassword(String password)
+	{
 		firePropertyChange("password", this.password, this.password = password);
 	}
 
-	public int getPort() {
-		return port;
+	public String getSchema()
+	{
+		return schema;
 	}
 
-	public void setPort(int port) {
-		firePropertyChange("port", this.port, this.port = port);
+	public void setSchema(String schema)
+	{
+		firePropertyChange("schema", this.schema, this.schema = schema);
 	}
 
-	public String toString() {
-		return "Database( hostname=\"" + hostname + "\"" + ", username=\""
-				+ username + "\"" + ", password=\"" + password + "\""
-				+ ", port=" + port + ")";
+	public String toString()
+	{
+		return "Database( hostname=\"" + hostname + "\"" + ", username=\"" + username + "\"" + ", password=\"" + password + "\"" + ", schema=" + schema + ")";
 	}
 
-    Object getDefaultSelection() {
-		for (CaptureDbTable f : captureDbTables) {
-			if ("Inbox".equals(f.getName())) {
+	Object getDefaultSelection()
+	{
+		for (CaptureDbTable f : captureDbTables)
+		{
+			if ("Inbox".equals(f.getName()))
+			{
 				return f;
 			}
 		}
