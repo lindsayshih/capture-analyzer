@@ -8,7 +8,6 @@ public class GlobalConfig
 		static String connURL = "jdbc:mysql://localhost/capture_analyzer";
 		static String username = "root";
 		static String password = "oklydokly";
-		static int numberOfPartitions = 80;
 
 		/**
 		 * @return the driverName
@@ -76,23 +75,6 @@ public class GlobalConfig
 		public static void setPassword(String password)
 		{
 			Database.password = password;
-		}
-
-		/**
-		 * @return the numberOfPartitions
-		 */
-		public static int getNumberOfPartitions()
-		{
-			return numberOfPartitions;
-		}
-
-		/**
-		 * @param numberOfPartitions
-		 *            the numberOfPartitions to set
-		 */
-		public static void setNumberOfPartitions(int numberOfPartitions)
-		{
-			Database.numberOfPartitions = numberOfPartitions;
 		}
 	}
 
