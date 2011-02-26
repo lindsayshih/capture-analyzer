@@ -60,14 +60,14 @@
    <extension
          point="org.eclipse.ui.views">
       <view
-            name="Message"
+            name="Report"
             allowMultiple="true"
             icon="icons/silk/email_edit.png"
             class="capanalyzer.MessageView"
             id="capanalyzer.view">
       </view>
       <view
-            name="Mailboxes"
+            name="Databases"
             allowMultiple="false"
             icon="icons/silk/email_go.png"
             class="capanalyzer.Navigator"
@@ -77,7 +77,7 @@
             class="capanalyzer.MessageTableView"
             icon="icons/silk/email_open.png"
             id="capanalyzer.MessageTableView"
-            name="Messages">
+            name="General Information">
       </view>
       <view
             category="org.eclipse.ui"
@@ -106,9 +106,9 @@
                   visible="true">
             </separator>
             <command
-                  commandId="capanalyzer.command.createServer"
+                  commandId="capanalyzer.command.createDatabase"
                   icon="icons/silk/server_add.png"
-                  label="New &amp;Server"
+                  label="New &amp;Database"
                   style="push">
             </command>
             <separator
@@ -137,9 +137,9 @@
          <toolbar
                id="rcpmail-db-cnf.toolbar1">
             <command
-                  commandId="capanalyzer.command.createServer"
+                  commandId="capanalyzer.command.createDatabase"
                   icon="icons/silk/server_add.png"
-                  label="New Server"
+                  label="New Database"
                   style="push">
             </command>
             <command
@@ -149,7 +149,7 @@
                   style="push">
             </command>
             <command
-                  commandId="capanalyzer.syncServer"
+                  commandId="capanalyzer.syncDatabase"
                   disabledIcon="icons/silk/arrow_refresh_disabled.png"
                   icon="icons/silk/arrow_refresh.png"
                   label="Synchronize"
@@ -174,18 +174,18 @@
       <menuContribution
             locationURI="toolbar:capanalyzer.navigatorView">
          <command
-               commandId="capanalyzer.command.createServer"
+               commandId="capanalyzer.command.createDatabase"
                icon="icons/silk/server_add.png"
-               label="Create New Server"
+               label="Create New Database"
                style="push">
          </command>
       </menuContribution>
       <menuContribution
             locationURI="menu:dropdownMenuId">
          <command
-               commandId="capanalyzer.command.createServer"
+               commandId="capanalyzer.command.createDatabase"
                icon="icons/silk/server_add.png"
-               label="Open server wizard"
+               label="Open database wizard"
                style="push">
          </command>
       </menuContribution>
@@ -215,9 +215,15 @@
                style="push">
          </command>
          <command
-               commandId="capanalyzer.command.createServer"
+               commandId="capanalyzer.command.createDatabase"
                icon="icons/silk/server_add.png"
-               label="Create new server"
+               label="Create new database"
+               style="push">
+         </command>
+         <command
+               commandId="capanalyzer.importCapToDatabase"
+               icon="icons/silk/server_add.png"
+               label="Import New Capture File to Database"
                style="push">
          </command>
       </menuContribution>
@@ -251,15 +257,15 @@
       </category>
       <command
             categoryId="capanalyzer.category"
-            defaultHandler="capanalyzer.handlers.CreateServerHandler"
-            description="Create New Server"
-            id="capanalyzer.command.createServer"
-            name="New Server">
+            defaultHandler="capanalyzer.handlers.CreateDatabaseHandler"
+            description="Create New Database"
+            id="capanalyzer.command.createDatabase"
+            name="New Database">
       </command>
       <command
             categoryId="capanalyzer.category"
-            description="Synchronize with Server"
-            id="capanalyzer.syncServer"
+            description="Synchronize with Database"
+            id="capanalyzer.syncDatabase"
             name="Synchronize">
       </command>
       <command
@@ -271,6 +277,13 @@
             id="capanalyzer.markAsSpamAndMove"
             name="Mark as Spam and Move">
       </command>
+      <command
+            categoryId="capanalyzer.category"
+            defaultHandler="capanalyzer.handlers.ImportCaptureFileToDatabaseWizardHandler"
+            description="Import Capture File to Database"
+            id="capanalyzer.importCapToDatabase"
+            name="Import Capture File to Database">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -279,7 +292,7 @@
             name="RCPMail Key Scheme">
       </scheme>
       <key
-            commandId="capanalyzer.command.createServer"
+            commandId="capanalyzer.command.createDatabase"
             schemeId="capanalyzer.key.scheme"
             sequence="CTRL+N">
       </key>
@@ -295,7 +308,7 @@
             sequence="J">
       </key>
       <key
-            commandId="capanalyzer.syncServer"
+            commandId="capanalyzer.syncDatabase"
             schemeId="capanalyzer.key.scheme"
             sequence="CTRL+T">
       </key>
@@ -342,8 +355,8 @@
    <extension
          point="org.eclipse.ui.handlers">
       <handler
-            class="capanalyzer.handlers.SyncWithServerHandler"
-            commandId="capanalyzer.syncServer">
+            class="capanalyzer.handlers.SyncWithDatabaseHandler"
+            commandId="capanalyzer.syncDatabase">
          <enabledWhen>
             <with
                   variable="selection">
@@ -355,7 +368,7 @@
                         ifEmpty="false"
                         operator="and">
                      <instanceof
-                           value="capanalyzer.model.Folder">
+                           value="capanalyzer.model.CaptureDbTable">
                      </instanceof>
                   </iterate>
                </and>
