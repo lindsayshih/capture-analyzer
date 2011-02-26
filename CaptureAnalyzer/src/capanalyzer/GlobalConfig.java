@@ -2,13 +2,13 @@ package capanalyzer;
 
 public class GlobalConfig
 {
-	protected static class Database
+	public static class Database
 	{
 		static String driverName = "com.mysql.jdbc.Driver";
 		static String connURL = "jdbc:mysql://localhost/capture_analyzer";
-		static String username = "enter user name";
-		static String password = "enter password";
-		static int numberOfPartitions = 20;
+		static String username = "root";
+		static String password = "oklydokly";
+		static int numberOfPartitions = 80;
 
 		/**
 		 * @return the driverName
@@ -96,9 +96,10 @@ public class GlobalConfig
 		}
 	}
 
-	protected static class CaptureFileReadParams
+	public static class CaptureFileReadParams
 	{
 		static int numberOfMaps = 16;
+		static int numberOfDbMaps = 4;
 		static int sizeOfBuffer = 32;
 		static int agingTime = 120;
 
@@ -119,6 +120,23 @@ public class GlobalConfig
 			CaptureFileReadParams.numberOfMaps = numberOfMaps;
 		}
 
+		/**
+		 * @return the numberOfDbMaps
+		 */
+		public static int getNumberOfDbMaps()
+		{
+			return numberOfDbMaps;
+		}
+
+		/**
+		 * @param numberOfDbMaps
+		 *            the numberOfMaps to set
+		 */
+		public static void setNumberOfDbMaps(int numberOfDbMaps)
+		{
+			CaptureFileReadParams.numberOfDbMaps = numberOfDbMaps;
+		}
+		
 		/**
 		 * @return the sizeOfBuffer
 		 */
