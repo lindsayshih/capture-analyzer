@@ -200,10 +200,10 @@ public class AnalyzeCaptureFile
 					"(`flow_id` int(10) unsigned NOT NULL DEFAULT '0'," + 
 					"`source_ip` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
 					"`source_port` int(10) unsigned NOT NULL DEFAULT '0'," + 
-					"`destination_ip` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
-					"`destination_port` int(10) unsigned NOT NULL DEFAULT '0'," + 
+					"`dest_ip` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
+					"`dest_port` int(10) unsigned NOT NULL DEFAULT '0'," + 
 					"`flow_type` int(10) unsigned NOT NULL DEFAULT '0'," + 
-					"`is_tcp_full` int(10) unsigned NOT NULL DEFAULT '0'," +
+					"`is_full_tcp` int(10) unsigned NOT NULL DEFAULT '0'," +
 					"`start_time` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
 					"`duration` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
 					"`number_of_packets` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
@@ -213,7 +213,10 @@ public class AnalyzeCaptureFile
 					"`max_packet_size` int(10) unsigned NOT NULL DEFAULT '0'," + 
 					"`min_ipg` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
 					"`average_ipg` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
-					"`max_ipg` bigint(20) unsigned NOT NULL DEFAULT '0') " + 
+					"`max_ipg` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
+					"`tcp_init_min_ipg` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
+					"`tcp_init_average_ipg` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
+					"`tcp_init_max_ipg` bigint(20) unsigned NOT NULL DEFAULT '0') " + 
 					"ENGINE=MyISAM DEFAULT CHARSET=latin1 " + 
 					"PARTITION BY RANGE (flow_type) (" +
 					"PARTITION ICMP VALUES LESS THAN (2)," +
