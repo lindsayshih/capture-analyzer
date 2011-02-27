@@ -5,7 +5,7 @@ import capanalyzer.netutils.files.CaptureFileBlock;
 
 public interface IPacketAnalyzer
 {
-	public abstract void processPacket(CaptureFileBlock theFullPacket);
+	public abstract void processPacket(CaptureFileBlock theFullPacket, long thePacketOffset);
 	
 	public abstract void finalizeFlow(FiveTuple theFlowTuple); 
 }

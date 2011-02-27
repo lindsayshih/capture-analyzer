@@ -8,7 +8,7 @@ public class BaseAnalyzer implements IPacketAnalyzer
 	FlowsDataStructure flowsDataStructure = FlowsDataStructure.getInstance();
 	FlowsDataStructureForDB flowsDataStructureForDb = FlowsDataStructureForDB.getInstance();
 
-	public void processPacket(CaptureFileBlock theFullPacket)
+	public void processPacket(CaptureFileBlock theFullPacket, long thePacketOffset)
 	{
 		try
 		{
@@ -17,7 +17,8 @@ public class BaseAnalyzer implements IPacketAnalyzer
 			{
 				flowsDataStructure.addNewFlow(flowTuple);
 				flowsDataStructure.getFlowInfoStruct(flowTuple).setStartTime(theFullPacket.getMyPktHdr().getTime());
-				flowsDataStructure.getFlowInfoStruct(flowTuple).setLastTime(theFullPacket.getMyPktHdr().getTime());		
+				flowsDataStructure.getFlowInfoStruct(flowTuple).setLastTime(theFullPacket.getMyPktHdr().getTime());	
+				flowsDataStructure.getFlowInfoStruct(flowTuple).setFirstPacketOffsetInCaptureFile(thePacketOffset);
 			}
 
 			flowsDataStructure.getFlowInfoStruct(flowTuple).incrementNumberOfPackets(); //needs to be first
@@ -62,6 +63,8 @@ public class BaseAnalyzer implements IPacketAnalyzer
 		tempFlowDataStructureForDB.addLongResult("tcp_init_min_ipg", (tempFlowDataStructure.getNumberOfPackets() > 1 && tempFlowDataStructure.isTcpFullStart()) ? tempFlowDataStructure.getTcpInitMinIpg() : 0);
 		tempFlowDataStructureForDB.addLongResult("tcp_init_average_ipg", (tempFlowDataStructure.getNumberOfPackets() > 1 && tempFlowDataStructure.isTcpFullStart()) ? (tempFlowDataStructure.getTcpInitTotalIpg() / 3) : 0);
 		tempFlowDataStructureForDB.addLongResult("tcp_init_max_ipg", (tempFlowDataStructure.getNumberOfPackets() > 1 && tempFlowDataStructure.isTcpFullStart()) ? tempFlowDataStructure.getTcpInitMaxIpg() : 0);
+		
+		tempFlowDataStructureForDB.addLongResult("flow_offset_in_cap", tempFlowDataStructure.getFirstPacketOffsetInCaptureFile());
 		
 		flowsDataStructure.removeFlow(theFlowTuple);
 		tempFlowDataStructureForDB = null;

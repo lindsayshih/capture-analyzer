@@ -32,6 +32,8 @@ public class PCapFileReader implements CaptureFileReader
 	
 	private long bytesRead = 0;
 	
+	private long prevBytesRead = 0;
+	
 	private long capFileSizeInBytes = 0;
 
 	private PCapFileHeader myPcapFileHeader = null;
@@ -67,6 +69,7 @@ public class PCapFileReader implements CaptureFileReader
 		readHeader(myInStrm);
 		capFileSizeInBytes = (new File(theFileName)).length();
 		bytesRead = PCapFileHeader.HEADER_SIZE;
+		prevBytesRead = PCapFileHeader.HEADER_SIZE;;
 	}
 
 	/**
@@ -105,6 +108,7 @@ public class PCapFileReader implements CaptureFileReader
 			{
 				throw new IOException("Corrputed file!!!");
 			}
+			prevBytesRead = bytesRead;
 			bytesRead += PCapPacketHeader.HEADER_SIZE + myPHDR.pktlenUint32;
 				
 			return toReturn;
@@ -310,6 +314,14 @@ public class PCapFileReader implements CaptureFileReader
 	public synchronized long getBytesRead()
 	{
 		return bytesRead;
+	}
+	
+	/**
+	 * @return the bytesRead
+	 */
+	public synchronized long getPrevBytesRead()
+	{
+		return prevBytesRead;
 	}
 	
 	/**
