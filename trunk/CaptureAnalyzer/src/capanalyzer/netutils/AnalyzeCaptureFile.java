@@ -58,7 +58,7 @@ public class AnalyzeCaptureFile
 				{
 					for (IPacketAnalyzer packetAnalyzer : packetAnalyzers)
 					{
-						packetAnalyzer.processPacket(nextblock);
+						packetAnalyzer.processPacket(nextblock, frd.getPrevBytesRead());
 					}
 
 					counter++;
@@ -216,7 +216,8 @@ public class AnalyzeCaptureFile
 					"`max_ipg` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
 					"`tcp_init_min_ipg` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
 					"`tcp_init_average_ipg` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
-					"`tcp_init_max_ipg` bigint(20) unsigned NOT NULL DEFAULT '0') " + 
+					"`tcp_init_max_ipg` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
+					"`flow_offset_in_cap` bigint(20) unsigned NOT NULL DEFAULT '0') " + 
 					"ENGINE=MyISAM DEFAULT CHARSET=latin1 " + 
 					"PARTITION BY RANGE (flow_type) (" +
 					"PARTITION ICMP VALUES LESS THAN (2)," +

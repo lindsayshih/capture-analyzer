@@ -40,6 +40,8 @@ public class FlowInfoStruct
 	private boolean hadSyn = false;
 	private boolean hadSynAck = false;
 	private boolean hadAck = false;
+	
+	private long firstPacketOffsetInCaptureFile = 0;
 
 	public FlowInfoStruct(FiveTuple theFlowTuple)
 	{
@@ -324,6 +326,22 @@ public class FlowInfoStruct
 	public void setTcpFullStart(boolean isTcpFullStart)
 	{
 		this.isTcpFullStart = isTcpFullStart;
+	}
+	
+	/**
+	 * @return the firstPacketOffsetInCaptureFile
+	 */
+	public long getFirstPacketOffsetInCaptureFile()
+	{
+		return firstPacketOffsetInCaptureFile;
+	}
+
+	/**
+	 * @param firstPacketOffsetInCaptureFile the firstPacketOffsetInCaptureFile to set
+	 */
+	public void setFirstPacketOffsetInCaptureFile(long firstPacketOffsetInCaptureFile)
+	{
+		this.firstPacketOffsetInCaptureFile = firstPacketOffsetInCaptureFile;
 	}
 
 }

@@ -38,6 +38,11 @@ public interface CaptureFileReader
 	public long getBytesRead();
 	
 	/**
+	 * @return the prevBytesRead
+	 */
+	public long getPrevBytesRead();
+	
+	/**
 	 * @return the capFileSizeInBytes
 	 */
 	public long getCapFileSizeInBytes();

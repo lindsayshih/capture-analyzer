@@ -24,6 +24,8 @@ public class ErfFileReader implements CaptureFileReader
 	
 	private long bytesRead = 0;
 	
+	private long prevBytesRead = 0;
+	
 	private long capFileSizeInBytes = 0;
 	
 	private String myFileName = null;
@@ -63,6 +65,7 @@ public class ErfFileReader implements CaptureFileReader
 		
 		capFileSizeInBytes = (new File(theFileName)).length();
 		bytesRead = 0;
+		prevBytesRead = 0;
 	}
 
 	/**
@@ -91,6 +94,7 @@ public class ErfFileReader implements CaptureFileReader
 			if(skipped != myPHDR.pktRlen16Uint - myPHDR.pktWlen16Uint - ErfPacketHeader.HEADER_SIZE)
 				throw new IOException("Skip did not skip required amount of bytes!!!");
 			
+			prevBytesRead = bytesRead;
 			bytesRead += ErfPacketHeader.HEADER_SIZE + myPHDR.pktWlen16Uint + (myPHDR.pktRlen16Uint - myPHDR.pktWlen16Uint - ErfPacketHeader.HEADER_SIZE);
 			
 			return toReturn;
@@ -310,6 +314,14 @@ public class ErfFileReader implements CaptureFileReader
 	public synchronized long getBytesRead()
 	{
 		return bytesRead;
+	}
+	
+	/**
+	 * @return the bytesRead
+	 */
+	public synchronized long getPrevBytesRead()
+	{
+		return prevBytesRead;
 	}
 	
 	/**
