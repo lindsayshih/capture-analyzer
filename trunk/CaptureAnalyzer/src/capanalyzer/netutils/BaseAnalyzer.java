@@ -1,8 +1,6 @@
 package capanalyzer.netutils;
 
 import capanalyzer.netutils.build.FiveTuple;
-import capanalyzer.netutils.build.IPPacketType;
-import capanalyzer.netutils.build.TCPPacket;
 import capanalyzer.netutils.files.CaptureFileBlock;
 
 public class BaseAnalyzer implements IPacketAnalyzer
@@ -20,18 +18,10 @@ public class BaseAnalyzer implements IPacketAnalyzer
 				flowsDataStructure.addNewFlow(flowTuple);
 				flowsDataStructure.getFlowInfoStruct(flowTuple).setStartTime(theFullPacket.getMyPktHdr().getTime());
 				flowsDataStructure.getFlowInfoStruct(flowTuple).setLastTime(theFullPacket.getMyPktHdr().getTime());		
-				
-				if(flowTuple.getMyType() == IPPacketType.TCP)
-				{
-					TCPPacket tcppkt = new TCPPacket(theFullPacket.getMyData());
-					if(tcppkt.isSyn())
-					{
-						flowsDataStructure.getFlowInfoStruct(flowTuple).setTcpFullStart(true);
-					}
-				}
 			}
 
-			flowsDataStructure.getFlowInfoStruct(flowTuple).incrementNumberOfPackets();
+			flowsDataStructure.getFlowInfoStruct(flowTuple).incrementNumberOfPackets(); //needs to be first
+			flowsDataStructure.getFlowInfoStruct(flowTuple).updateTcpInitStat(theFullPacket); //needs to be after incrementNumberOfPackets and before addIpg
 			flowsDataStructure.getFlowInfoStruct(flowTuple).addIpg(theFullPacket.getMyPktHdr().getTime());
 			flowsDataStructure.getFlowInfoStruct(flowTuple).addPacketSize(theFullPacket.getMyData().length);
 			flowsDataStructure.getFlowInfoStruct(flowTuple).setLastTime(theFullPacket.getMyPktHdr().getTime());
@@ -51,10 +41,10 @@ public class BaseAnalyzer implements IPacketAnalyzer
 		tempFlowDataStructureForDB.addLongResult("flow_id", tempFlowDataStructure.getFlowId());
 		tempFlowDataStructureForDB.addLongResult("source_ip", tempFlowDataStructure.getSourceIp());
 		tempFlowDataStructureForDB.addIntegerResult("source_port", tempFlowDataStructure.getSourcePort());
-		tempFlowDataStructureForDB.addLongResult("destination_ip", tempFlowDataStructure.getDestinationIp());
-		tempFlowDataStructureForDB.addIntegerResult("destination_port", tempFlowDataStructure.getDestinationPort());
+		tempFlowDataStructureForDB.addLongResult("dest_ip", tempFlowDataStructure.getDestinationIp());
+		tempFlowDataStructureForDB.addIntegerResult("dest_port", tempFlowDataStructure.getDestinationPort());
 		tempFlowDataStructureForDB.addIntegerResult("flow_type", tempFlowDataStructure.getFlowType());
-		tempFlowDataStructureForDB.addIntegerResult("is_tcp_full", tempFlowDataStructure.isTcpFullStart()?1:0);
+		tempFlowDataStructureForDB.addIntegerResult("is_full_tcp", tempFlowDataStructure.isTcpFullStart()?1:0);
 		
 		tempFlowDataStructureForDB.addLongResult("start_time", tempFlowDataStructure.getStartTime());
 		tempFlowDataStructureForDB.addLongResult("duration", Math.abs((tempFlowDataStructure.getLastTime() - tempFlowDataStructure.getStartTime())));
@@ -69,6 +59,10 @@ public class BaseAnalyzer implements IPacketAnalyzer
 		tempFlowDataStructureForDB.addLongResult("average_ipg", (tempFlowDataStructure.getNumberOfPackets() > 1) ? (tempFlowDataStructure.getTotalIpg() / (tempFlowDataStructure.getNumberOfPackets() - 1)) : 0);
 		tempFlowDataStructureForDB.addLongResult("max_ipg", (tempFlowDataStructure.getNumberOfPackets() > 1) ? tempFlowDataStructure.getMaxIpg() : 0);
 
+		tempFlowDataStructureForDB.addLongResult("tcp_init_min_ipg", (tempFlowDataStructure.getNumberOfPackets() > 1 && tempFlowDataStructure.isTcpFullStart()) ? tempFlowDataStructure.getTcpInitMinIpg() : 0);
+		tempFlowDataStructureForDB.addLongResult("tcp_init_average_ipg", (tempFlowDataStructure.getNumberOfPackets() > 1 && tempFlowDataStructure.isTcpFullStart()) ? (tempFlowDataStructure.getTcpInitTotalIpg() / 3) : 0);
+		tempFlowDataStructureForDB.addLongResult("tcp_init_max_ipg", (tempFlowDataStructure.getNumberOfPackets() > 1 && tempFlowDataStructure.isTcpFullStart()) ? tempFlowDataStructure.getTcpInitMaxIpg() : 0);
+		
 		flowsDataStructure.removeFlow(theFlowTuple);
 		tempFlowDataStructureForDB = null;
 		tempFlowDataStructure = null;

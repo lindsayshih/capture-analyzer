@@ -1,6 +1,9 @@
 package capanalyzer.netutils;
 
 import capanalyzer.netutils.build.FiveTuple;
+import capanalyzer.netutils.build.IPPacketType;
+import capanalyzer.netutils.build.TCPPacket;
+import capanalyzer.netutils.files.CaptureFileBlock;
 
 public class FlowInfoStruct
 {
@@ -27,9 +30,16 @@ public class FlowInfoStruct
 	private long maxIpg = 0;
 	private long totalIpg = 0;
 	
+	private long tcpInitMinIpg = Long.MAX_VALUE;
+	private long tcpInitMaxIpg = 0;
+	private long tcpInitTotalIpg = 0;
+
 	private long numberOfPackets = 0;
 	
-	private boolean tcpFullStart = false;
+	private boolean isTcpFullStart = false;
+	private boolean hadSyn = false;
+	private boolean hadSynAck = false;
+	private boolean hadAck = false;
 
 	public FlowInfoStruct(FiveTuple theFlowTuple)
 	{
@@ -181,22 +191,6 @@ public class FlowInfoStruct
 	}
 
 	/**
-	 * @return the minIpg
-	 */
-	public long getMinIpg()
-	{
-		return minIpg;
-	}
-
-	/**
-	 * @return the maxIpg
-	 */
-	public long getMaxIpg()
-	{
-		return maxIpg;
-	}
-
-	/**
 	 * @param currentTime
 	 */
 	public void addIpg(long currentTime)
@@ -214,9 +208,36 @@ public class FlowInfoStruct
 				this.minIpg = ipg;
 			
 			this.totalIpg += ipg;
+			
+			if((numberOfPackets == 2 && hadSyn && hadSynAck) || (numberOfPackets == 3 && hadSyn && hadSynAck && hadAck))
+			{
+				if(ipg>this.tcpInitMaxIpg)
+					this.tcpInitMaxIpg = ipg;
+					
+				if(ipg<this.tcpInitMinIpg)
+					this.tcpInitMinIpg = ipg;
+				
+				this.tcpInitTotalIpg += ipg;
+			} 
 		}
 	}
 
+	/**
+	 * @return the minIpg
+	 */
+	public long getMinIpg()
+	{
+		return minIpg;
+	}
+
+	/**
+	 * @return the maxIpg
+	 */
+	public long getMaxIpg()
+	{
+		return maxIpg;
+	}
+	
 	/**
 	 * @return the totalIpg
 	 */
@@ -225,6 +246,30 @@ public class FlowInfoStruct
 		return totalIpg;
 	}
 
+	/**
+	 * @return the tcpInitMinIpg
+	 */
+	public long getTcpInitMinIpg()
+	{
+		return tcpInitMinIpg;
+	}
+
+	/**
+	 * @return the tcpInitMaxIpg
+	 */
+	public long getTcpInitMaxIpg()
+	{
+		return tcpInitMaxIpg;
+	}
+
+	/**
+	 * @return the tcpInitTotalIpg
+	 */
+	public long getTcpInitTotalIpg()
+	{
+		return tcpInitTotalIpg;
+	}
+	
 	/**
 	 * @return the numberOfPackets
 	 */
@@ -242,19 +287,43 @@ public class FlowInfoStruct
 	}
 	
 	/**
+	 * Follow the tcp 3-way handshake and update status accordingly
+	 * 
+	 * @param theFullPacket
+	 */
+	public void updateTcpInitStat(CaptureFileBlock theFullPacket)
+	{
+		if (flowType == IPPacketType.TCP && numberOfPackets <= 3)
+		{
+			TCPPacket tcppkt = new TCPPacket(theFullPacket.getMyData());
+			if (numberOfPackets == 1 && tcppkt.isSyn())
+			{
+				hadSyn = true;
+			} else if (hadSyn && numberOfPackets == 2 && tcppkt.isSyn() && tcppkt.isAck())
+			{
+				hadSynAck = true;
+			} else if (hadSynAck && numberOfPackets == 3 && tcppkt.isAck())
+			{
+				hadAck = true;
+				isTcpFullStart = true;
+			}
+		}
+	}
+	
+	/**
 	 * @return the tcpFullStart
 	 */
 	public boolean isTcpFullStart()
 	{
-		return tcpFullStart;
+		return isTcpFullStart;
 	}
 
 	/**
 	 * @param tcpFullStart the tcpFullStart to set
 	 */
-	public void setTcpFullStart(boolean tcpFullStart)
+	public void setTcpFullStart(boolean isTcpFullStart)
 	{
-		this.tcpFullStart = tcpFullStart;
+		this.isTcpFullStart = isTcpFullStart;
 	}
 
 }
