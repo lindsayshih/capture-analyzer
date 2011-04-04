@@ -19,7 +19,7 @@ import capanalyzer.netutils.files.CaptureFileReader;
 
 public class AnalyzeCaptureFile
 {
-	static String erfFile = "e:\\capture_012_15_06_2009.erf";
+	static String erfFile = "f:\\capture_012_15_06_2009.erf";
 
 	/** JDBC driver name */
 	private static String driverName;
