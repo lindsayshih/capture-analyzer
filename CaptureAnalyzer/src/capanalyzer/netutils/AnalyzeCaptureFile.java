@@ -19,7 +19,7 @@ import capanalyzer.netutils.files.CaptureFileReader;
 
 public class AnalyzeCaptureFile
 {
-	static String erfFile = "f:\\capture_012_15_06_2009.erf";
+	static String inputErfFile = "d:\\capture_012_15_06_2009_5G.erf";
 
 	/** JDBC driver name */
 	private static String driverName;
@@ -41,7 +41,8 @@ public class AnalyzeCaptureFile
 		List<IPacketAnalyzer> packetAnalyzers = new ArrayList<IPacketAnalyzer>();
 		packetAnalyzers.add(new BaseAnalyzer());
 
-		CaptureFileReader frd = CaptureFileFactory.createCaptureFileReader(erfFile);
+		CaptureFileReader frd = CaptureFileFactory.createCaptureFileReader(inputErfFile);
+		
 		CaptureFileBlock nextblock = null;
 		long counter = 0;
 
@@ -60,8 +61,9 @@ public class AnalyzeCaptureFile
 					{
 						packetAnalyzer.processPacket(nextblock, frd.getPrevBytesRead());
 					}
-
+					
 					counter++;
+					
 					if (counter % numOfIpPacketsBetweenChecks == 0)
 					{
 						checkForAgedFlowsAndInsertToDb(agingTime, packetAnalyzers, nextblock, con);
@@ -70,7 +72,7 @@ public class AnalyzeCaptureFile
 					}
 				}
 			}
-
+			
 			System.out.println("Total Time = " + (System.currentTimeMillis() - startTime) / 1000 + " Seconds");
 
 		} catch (Exception e)
@@ -194,7 +196,7 @@ public class AnalyzeCaptureFile
 		{
 			if(dropTableIfExist)
 				con.createStatement().execute("DROP TABLE IF EXISTS `capture_analyzer`.`all_flows`");
-
+		
 			con.createStatement().execute(
 					"CREATE TABLE  `capture_analyzer`.`all_flows` " + 
 					"(`flow_id` int(10) unsigned NOT NULL DEFAULT '0'," + 
