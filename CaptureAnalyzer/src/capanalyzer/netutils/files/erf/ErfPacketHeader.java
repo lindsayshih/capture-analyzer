@@ -154,12 +154,12 @@ public class ErfPacketHeader implements CaptureFilePacketHeader
 
 		ByteUtils.setLittleIndianInBytesArray(tmp, 0, pcapRead32(timeValSec32Uint), 4);
 		ByteUtils.setLittleIndianInBytesArray(tmp, 4, pcapRead32(timeValMsec32Uint), 4);
-		ByteUtils.setLittleIndianInBytesArray(tmp, 8, pcapRead16(pktType16Uint), 1);
-		ByteUtils.setLittleIndianInBytesArray(tmp, 9, pcapRead16(pktFlags16Uint), 1);
-		ByteUtils.setLittleIndianInBytesArray(tmp, 10, pcapRead16(pktRlen16Uint), 2);
-		ByteUtils.setLittleIndianInBytesArray(tmp, 12, pcapRead16(pktLctrColor16Uint), 2);
-		ByteUtils.setLittleIndianInBytesArray(tmp, 14, pcapRead16(pktWlen16Uint), 2);
-		ByteUtils.setLittleIndianInBytesArray(tmp, 16, pcapRead16(pktPadAndOffset16Uint), 2);
+		ByteUtils.setBigIndianInBytesArray(tmp, 8, pcapRead16(pktType16Uint), 1);
+		ByteUtils.setBigIndianInBytesArray(tmp, 9, pcapRead16(pktFlags16Uint), 1);
+		ByteUtils.setBigIndianInBytesArray(tmp, 10, pcapRead16(pktRlen16Uint), 2);
+		ByteUtils.setBigIndianInBytesArray(tmp, 12, pcapRead16(pktLctrColor16Uint), 2);
+		ByteUtils.setBigIndianInBytesArray(tmp, 14, pcapRead16(pktWlen16Uint), 2);
+		ByteUtils.setBigIndianInBytesArray(tmp, 16, pcapRead16(pktPadAndOffset16Uint), 2);
 
 		return tmp;
 	}
@@ -167,7 +167,7 @@ public class ErfPacketHeader implements CaptureFilePacketHeader
 	/**
 	 * @return the header as read from the stream.
 	 */
-	protected byte[] getTheHeaderByteArray()
+	public byte[] getTheHeaderByteArray()
 	{
 		return myOriginalCopy;
 	}
