@@ -9,12 +9,8 @@ import capanalyzer.netutils.files.CaptureFileWriter;
 
 
 /**
- * Class for creating capture files in libcap format.<br>
+ * Class for creating capture files in erf format.<br>
  * 
- * if using java version less then 1.5 then the packet time resolution will
- * be in msec and no nanosec.<br>
- * 
- * @since java 1.5
  * @author roni bar yanai
  *
  */
@@ -37,8 +33,6 @@ public class ErfFileWriter implements CaptureFileWriter
 
 	// total ~bytes written so far.
 	private long myTotalBytes = 0;
-
-	private boolean isAboveJave1_4 = true;
 
 	/**
 	 * open new file
@@ -85,30 +79,14 @@ public class ErfFileWriter implements CaptureFileWriter
 		this(thefile);
 		myLimit = thelimit;
 	}
-	
-	/**
-	 * set java version > 1.4
-	 * @param isAboveJave1_4
-	 */
-	public void setAboveJave1_4(boolean isAboveJave1_4)
-	{
-		this.isAboveJave1_4 = isAboveJave1_4;
-	}
 
 	/**
 	 * 
 	 * @return time stamp in nano seconds
 	 */
 	private long getNanoTime()
-	{
-		if (isAboveJave1_4)
-		{
-			return System.nanoTime();
-		}
-		else
-		{
-			return System.currentTimeMillis() * 1000000;
-		}
+	{	
+		return System.nanoTime();
 	}
 
 	/**
@@ -158,7 +136,7 @@ public class ErfFileWriter implements CaptureFileWriter
 	}
 
 	/**
-	 * add packet to alreay opened cap.
+	 * add packet to already opened cap.
 	 * if close method was called earlier then will not add it.
 	 * @param thepkt
 	 * @return true if packet added and false otherwise
@@ -188,6 +166,37 @@ public class ErfFileWriter implements CaptureFileWriter
 		return true;
 	}
 
+	
+	/**
+	 * add packet to already opened cap.
+	 * if close method was called earlier then will not add it.
+	 * @param theHder
+	 * @param thepkt
+	 * @return true if packet added and false otherwise
+	 * @throws IOException
+	 */
+	public boolean addPacket(ErfPacketHeader theHder, byte[] thepkt) throws IOException
+	{
+		if (thepkt == null || !_isopened || myTotalBytes > myLimit) return false;
+
+		if (thepkt.length > MAX_PACKET_SIZE)
+			throw new IOException("Got illeagl packet size : "+thepkt.length);
+		
+		byte[] padding = new byte[theHder.pktRlen16Uint - theHder.pktWlen16Uint - ErfPacketHeader.HEADER_SIZE];
+		for (int i = 0; i < padding.length; i++)
+		{
+			padding[i] = 0;
+		}
+		
+		myOutStrm.write(theHder.getTheHeaderByteArray());
+		myOutStrm.write(thepkt);
+		myOutStrm.write(padding);
+
+		myTotalBytes += thepkt.length + ErfPacketHeader.HEADER_SIZE + padding.length;
+
+		return true;
+	}
+	
 	/**
 	 * close file.
 	 * not reversible
