@@ -1,12 +1,11 @@
 package capanalyzer.netutils.files.erf;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
 import capanalyzer.netutils.files.CaptureFileWriter;
-
-
 
 /**
  * Class for creating capture files in erf format.<br>
@@ -18,13 +17,10 @@ public class ErfFileWriter implements CaptureFileWriter
 {
 	private static final int MAX_PACKET_SIZE = 65356;
 
-	public static final long DEFAULT_LIMIT = 1000000000;
-
-	// limit the file size
-	private long myLimit = DEFAULT_LIMIT;
-
 	// the out stream
 	private FileOutputStream myOutStrm = null;
+	
+	private BufferedOutputStream myBufferedOutStrm = null;
 
 	private boolean _isopened = false;
 
@@ -69,18 +65,6 @@ public class ErfFileWriter implements CaptureFileWriter
 	}
 
 	/**
-	 * open new file
-	 * @param thefile
-	 * @param thelimit - max bytes
-	 * @throws IOException - on file creation failure.
-	 */
-	public ErfFileWriter(File thefile, long thelimit) throws IOException
-	{
-		this(thefile);
-		myLimit = thelimit;
-	}
-
-	/**
 	 * 
 	 * @return time stamp in nano seconds
 	 */
@@ -97,6 +81,7 @@ public class ErfFileWriter implements CaptureFileWriter
 	private void init(File file, boolean append) throws IOException
 	{
 		myOutStrm = new FileOutputStream(file, append);
+		myBufferedOutStrm = new BufferedOutputStream(myOutStrm);
 
 		_isopened = true;
 	}
@@ -113,7 +98,7 @@ public class ErfFileWriter implements CaptureFileWriter
 	public boolean addPacket(byte[] thepkt,long time) throws IOException
 	{
 
-		if (thepkt == null || !_isopened || myTotalBytes > myLimit) return false;
+		if (thepkt == null || !_isopened) return false;
 
 		ErfPacketHeader hder = new ErfPacketHeader();
 
@@ -125,8 +110,8 @@ public class ErfFileWriter implements CaptureFileWriter
 		if (thepkt.length > MAX_PACKET_SIZE)
 			throw new IOException("Got illeagl packet size : "+thepkt.length);
 		
-		myOutStrm.write(hder.getAsByteArray());
-		myOutStrm.write(thepkt);
+		myBufferedOutStrm.write(hder.getAsByteArray());
+		myBufferedOutStrm.write(thepkt);
 
 		myTotalBytes += thepkt.length + ErfPacketHeader.HEADER_SIZE;
 
@@ -144,7 +129,7 @@ public class ErfFileWriter implements CaptureFileWriter
 	 */
 	public boolean addPacket(byte[] thepkt) throws IOException
 	{
-		if (thepkt == null || !_isopened || myTotalBytes > myLimit) return false;
+		if (thepkt == null || !_isopened) return false;
 
 		ErfPacketHeader hder = new ErfPacketHeader();
 
@@ -158,8 +143,8 @@ public class ErfFileWriter implements CaptureFileWriter
 		if (thepkt.length > MAX_PACKET_SIZE)
 			throw new IOException("Got illeagl packet size : "+thepkt.length);
 		
-		myOutStrm.write(hder.getAsByteArray());
-		myOutStrm.write(thepkt);
+		myBufferedOutStrm.write(hder.getAsByteArray());
+		myBufferedOutStrm.write(thepkt);
 
 		myTotalBytes += thepkt.length + ErfPacketHeader.HEADER_SIZE;
 
@@ -177,7 +162,7 @@ public class ErfFileWriter implements CaptureFileWriter
 	 */
 	public boolean addPacket(ErfPacketHeader theHder, byte[] thepkt) throws IOException
 	{
-		if (thepkt == null || !_isopened || myTotalBytes > myLimit) return false;
+		if (thepkt == null || !_isopened) return false;
 
 		if (thepkt.length > MAX_PACKET_SIZE)
 			throw new IOException("Got illeagl packet size : "+thepkt.length);
@@ -188,9 +173,9 @@ public class ErfFileWriter implements CaptureFileWriter
 			padding[i] = 0;
 		}
 		
-		myOutStrm.write(theHder.getTheHeaderByteArray());
-		myOutStrm.write(thepkt);
-		myOutStrm.write(padding);
+		myBufferedOutStrm.write(theHder.getTheHeaderByteArray());
+		myBufferedOutStrm.write(thepkt);
+		myBufferedOutStrm.write(padding);
 
 		myTotalBytes += thepkt.length + ErfPacketHeader.HEADER_SIZE + padding.length;
 
@@ -206,8 +191,10 @@ public class ErfFileWriter implements CaptureFileWriter
 	{
 		if (_isopened && myOutStrm != null)
 		{
+			myBufferedOutStrm.close();
 			myOutStrm.close();
 			_isopened = false;
+			myBufferedOutStrm = null;
 			myOutStrm = null;
 		}
 	}
@@ -218,22 +205,5 @@ public class ErfFileWriter implements CaptureFileWriter
 	public long getTotalBytes()
 	{
 		return myTotalBytes;
-	}
-
-	/**
-	 * @return true if cap limit reached.
-	 */
-	public boolean isLimitReached()
-	{
-		return myTotalBytes >= myLimit;
-	}
-
-	/**
-	 * set the cap max number of bytes.
-	 * @param theLimit
-	 */
-	public void setLimit(long theLimit)
-	{
-		myLimit = theLimit;
 	}
 }
