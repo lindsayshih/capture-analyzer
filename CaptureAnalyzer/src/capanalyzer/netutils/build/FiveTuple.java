@@ -159,6 +159,29 @@ public class FiveTuple
 		}
 		return result;
 	}
+	
+	public long longHashCode() {
+		long result = 1;
+		if (mySrcIp < myDstIp)
+		{
+			result = result + mySrcIp;
+			result = result + mySrcPort;
+			result = result + myDstIp;
+			result = result + myDstPort;
+			result = result + myType;
+			result = result * PRIME;
+		} 
+		else
+		{
+			result = result + myDstIp;
+			result = result + myDstPort;
+			result = result + mySrcIp;
+			result = result + mySrcPort;
+			result = result + myType;
+			result = result * PRIME;
+		}
+		return result;
+	}
 
 	/**
 	 * 
