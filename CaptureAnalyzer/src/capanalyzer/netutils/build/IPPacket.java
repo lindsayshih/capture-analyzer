@@ -677,7 +677,9 @@ public class IPPacket extends EthernetPacket
 	{
 		short b = (short) ByteUtils.getByteNetOrderTo_uint16(thePacket, ETHERNET_HEADER_LENGTH+IP_FRAG_POS);
 		
-		return ((b & 0x1f )!= 0 ) | (( b & 0x20) != 0);
+		//System.out.println("Flags= " + b + ", Is Fragment=" + (boolean)(((b & 0x1fff )!= 0 ) | (( b & 0x2000) != 0)));
+		
+		return ((b & 0x1fff )!= 0 ) | (( b & 0x2000) != 0);
 	}
 
 	/**
