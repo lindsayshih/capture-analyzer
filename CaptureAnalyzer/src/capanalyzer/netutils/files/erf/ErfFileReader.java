@@ -130,12 +130,14 @@ public class ErfFileReader implements CaptureFileReader
 	 * @throws ErfFileException
 	 * @throws IOException
 	 */
-	private byte[][] readAllCapRawData(String fileName) throws ErfFileException
+	private byte[][] readAllCapRawData(String fileName) throws IOException
 	{
 		InputStream in = null;
+		InputStream inBuffer = null;
 		try
 		{
 			in = new FileInputStream(new File(fileName));
+			inBuffer = new MyBufferedInputStream(in, GlobalConfig.CaptureFileReadParams.getSizeOfBuffer()*1024);
 			ArrayList<byte[]> tmp = new ArrayList<byte[]>();
 			byte[] pkt = null;
 			while ((pkt = readNextPacket(in)) != null)
@@ -146,10 +148,19 @@ public class ErfFileReader implements CaptureFileReader
 		}
 		catch (Exception ex)
 		{
-			throw new ErfFileException(ex.toString());
+			throw new IOException(ex.toString());
 		}
 		finally
 		{
+			if (inBuffer != null) try
+			{
+				inBuffer.close();
+			}
+			catch (IOException e)
+			{
+
+			}
+			
 			if (in != null) try
 			{
 				in.close();
@@ -289,8 +300,9 @@ public class ErfFileReader implements CaptureFileReader
 	 * @return all cap data as byte[][] array of byte arrays.
 	 * each byte array is a packet in the cap file (udp,tcp...etc)
 	 * @throws ErfFileException
+	 * @throws IOException 
 	 */
-	public static byte[][] readCapRawData(String fileName) throws ErfFileException
+	public static byte[][] readCapRawData(String fileName) throws IOException
 	{
 		ErfFileReader rd = new ErfFileReader();
 		return rd.readAllCapRawData(fileName);
