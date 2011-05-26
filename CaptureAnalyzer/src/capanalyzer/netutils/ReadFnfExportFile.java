@@ -8,37 +8,29 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import org.apache.poi.xssf.eventusermodel.examples.FromHowTo;
 
 import capanalyzer.GlobalConfig;
 import capanalyzer.database.ConnectionPool;
 import capanalyzer.netutils.build.FiveTuple;
-import capanalyzer.netutils.build.IPPacket;
-import capanalyzer.netutils.files.CaptureFileBlock;
-import capanalyzer.netutils.files.CaptureFileFactory;
-import capanalyzer.netutils.files.CaptureFileReader;
-import capanalyzer.netutils.files.erf.ErfFileWriter;
-import capanalyzer.netutils.files.erf.ErfPacketHeader;
 
-public class FilterCaptureFile
+public class ReadFnfExportFile
 {
-	static String inputErfFile = "c:\\Capture_Files\\udp_1_packet_filter_3rd_Try.erf";
-	
-	static String outputEerfFile = "c:\\Capture_Files\\udp_1_packet_filter_Not_DHT_Not_e42104.erf";
-	
-	static String tempQueryResultsFile = "e:/tempQueryResults.csv";
+	static String inputFnfFile = "c:\\Capture_Files\\fnf_export.csv";
 	
 	static String dbTableName = "all_flows_payload";
 	
-	static int filterNumberOfPackets = 1;
-	
-	static int flowType = 17;
-	
-	static int numberOfMapsToUse = 4;
+	static int numberOfMapsToUse = 10;
 
 	/** JDBC driver name */
 	private static String driverName;
@@ -54,60 +46,81 @@ public class FilterCaptureFile
 
 	public static void main(String[] args) throws IOException, NetUtilsException
 	{
-		CaptureFileReader frd = CaptureFileFactory.createCaptureFileReader(inputErfFile);
+		//setMySQLConnectInfo();
+		//Connection con = getConnectionPool().getConnection();
+		Map<Long, Long> conflictingClassifications = new HashMap<Long, Long>();
 		
-		ErfFileWriter fwrt = new ErfFileWriter(outputEerfFile);// TEMP
-		
-		CaptureFileBlock nextblock = null;
-
-		setMySQLConnectInfo();
-		Connection con = getConnectionPool().getConnection();
-
-		//List<Map<String, int[]>> filterMapList = new ArrayList<Map<String, int[]>>();
-		//List<Map<Long, int[]>> filterMapList = new ArrayList<Map<Long, int[]>>();
-		List<Map<Long, long[]>> filterMapList = new ArrayList<Map<Long, long[]>>();
+		List<Map<Long, List<Long>>> filterMapList = new ArrayList<Map<Long, List<Long>>>();
 		for (int i = 0; i < numberOfMapsToUse; i++)
 		{
-			//filterMapList.add(new HashMap<String, int[]>());
-			//filterMapList.add(new HashMap<Long, int[]>());
-			filterMapList.add(new HashMap<Long, long[]>());
+			filterMapList.add(new HashMap<Long, List<Long>>());
 		}
 		
 		try
 		{
-			System.out.println("Going to execute Query");			
-			//con.createStatement().executeQuery("SELECT source_ip,source_port,dest_ip,dest_port,flow_type,start_time,duration FROM " + dbTableName + " a where flow_type=" + flowType + " and number_of_packets=" + filterNumberOfPackets + " INTO OUTFILE '" + tempQueryResultsFile + "' FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n'");
-			con.createStatement().executeQuery("SELECT source_ip,source_port,dest_ip,dest_port,flow_type,start_time,duration FROM " + dbTableName + " a where flow_type=" + flowType + " and number_of_packets=" + filterNumberOfPackets + " and first_packet_payload not LIKE '%d1:ad2%' and first_packet_payload not LIKE '%d1:rd2%' and first_packet_payload not REGEXP x'e42104' INTO OUTFILE '" + tempQueryResultsFile + "' FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n'");
-			con.close();
-			System.out.println("Done executing Query");
-
-			System.out.println("Going to populate map");
-			FileInputStream fstream = new FileInputStream(tempQueryResultsFile);
+			System.out.println("Starting to read file and populate map");			
+			
+			FileInputStream fstream = new FileInputStream(inputFnfFile);
 			DataInputStream in = new DataInputStream(fstream);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String record;
 			long numberOfUniqeFlows = 0;
 			long numberOfFlows = 0;
+			long numberOfConflicts = 0;
+			long numberOfTwoClassifies = 0;
+			long numberOfThreeClassifies = 0;
+			long numberOfFourClassifies = 0;
 			while ((record = br.readLine()) != null)   
 			{
 				String[] recordArray = record.split(",");
-				long sourceIp = Long.parseLong(recordArray[0]);
-				int sourcePort = Integer.parseInt(recordArray[1]);
-				long destIp = Long.parseLong(recordArray[2]);
-				int destPort = Integer.parseInt(recordArray[3]);
-				int flowType = Integer.parseInt(recordArray[4]);
-				long startTime = Long.parseLong(recordArray[5]);
-				long duration = Long.parseLong(recordArray[6]);
+				long applicationId = Long.parseLong(recordArray[4]);
+				long sourceIp = Long.parseLong(recordArray[12]);
+				int sourcePort = Integer.parseInt(recordArray[13]);
+				long destIp = Long.parseLong(recordArray[14]);
+				int destPort = Integer.parseInt(recordArray[15]);
+				int flowType = Integer.parseInt(recordArray[16]);
 				
 				FiveTuple fiveT = new FiveTuple(sourceIp, sourcePort, destIp, destPort, flowType);
-				//int key = fiveT.hashCode();
-				//String strongerKey = fiveT.getKey();
+		
 				long key = fiveT.longHashCode();
 				if(filterMapList.get((int)(key%numberOfMapsToUse)).containsKey(key)==false)
 				{
-					//filterMapList.get((int)(key%numberOfMapsToUse)).put(key, new int[]{(int) (startTime/1000000), duration});
-					filterMapList.get((int)(key%numberOfMapsToUse)).put(key, new long[]{ startTime, duration});
+					filterMapList.get((int)(key%numberOfMapsToUse)).put(key, new ArrayList<Long>());
+					filterMapList.get((int)(key%numberOfMapsToUse)).get(key).add(applicationId);
 					numberOfUniqeFlows++;
+				}
+				else
+				{
+					if(filterMapList.get((int)(key%numberOfMapsToUse)).get(key).contains(applicationId)==false)
+					{
+						filterMapList.get((int)(key%numberOfMapsToUse)).get(key).add(applicationId);
+						//System.out.println("NOT MATCHING PREVIOUS CLASSIFICATION: was " + prevCalssification + " and now is " + applicationId);
+						numberOfConflicts++;
+						
+						if(conflictingClassifications.containsKey(applicationId))
+						{
+							conflictingClassifications.put(applicationId, ((long)conflictingClassifications.get(applicationId))+1);
+						}
+						else
+						{
+							conflictingClassifications.put(applicationId, (long) 1);
+						}
+						
+						if(filterMapList.get((int)(key%numberOfMapsToUse)).get(key).size()==2)
+						{
+							numberOfTwoClassifies++;
+						}
+						else if(filterMapList.get((int)(key%numberOfMapsToUse)).get(key).size()==3)
+						{
+							numberOfTwoClassifies--;
+							numberOfThreeClassifies++;
+						}
+						else if(filterMapList.get((int)(key%numberOfMapsToUse)).get(key).size()==4)
+						{
+							numberOfThreeClassifies--;
+							numberOfFourClassifies++;
+						}
+					}
 				}
 				//fiveT = null;
 				numberOfFlows++;
@@ -119,38 +132,20 @@ public class FilterCaptureFile
 			}
 			in.close();
 			System.out.println("Nuber of unique flows = " + numberOfUniqeFlows);
-			System.out.println("Total Nuber of  flows = " + numberOfFlows);
-			System.out.println("Done populating");
+			System.out.println("Total Nuber of flows = " + numberOfFlows);
+			System.out.println("Total Nuber of conflicts = " + numberOfConflicts);
+			System.out.println("Total Nuber of 2 clsssifies = " + numberOfTwoClassifies);
+			System.out.println("Total Nuber of 3 clsssifies = " + numberOfThreeClassifies);
+			System.out.println("Total Nuber of 4 clsssifies = " + numberOfFourClassifies);
 			
-			long numberOfPackets = 0;
-			while ((nextblock = frd.readNextBlock()) != null)
+			System.out.println();
+			Set<Long> applicationIds = conflictingClassifications.keySet();
+			for (Long appId : applicationIds)
 			{
-				if (IPPacket.statIsIpPacket(nextblock.getMyData()))
-				{
-					FiveTuple fiveT = new FiveTuple(nextblock.getMyData(), false);		
-					//int key = fiveT.hashCode();
-					//String strongerKey = fiveT.getKey();
-					long key = fiveT.longHashCode();
-					long packetTime = nextblock.getMyPktHdr().getTime();
-					//if(filterMapList.get((int)(key%numberOfMapsToUse)).containsKey(key) && ((packetTime > filterMapList.get((int)(key%numberOfMapsToUse)).get(key)[0]*1000000L) && (packetTime < (filterMapList.get((int)(key%numberOfMapsToUse)).get(key)[0]*1000000L+1000000L)+filterMapList.get((int)(key%numberOfMapsToUse)).get(key)[1])))
-					if(fiveT.getMyType()==flowType && filterMapList.get((int)(key%numberOfMapsToUse)).containsKey(key) && (packetTime >= filterMapList.get((int)(key%numberOfMapsToUse)).get(key)[0] && (packetTime <= filterMapList.get((int)(key%numberOfMapsToUse)).get(key)[0]+filterMapList.get((int)(key%numberOfMapsToUse)).get(key)[1])))
-					{
-						//short numOfPacketsInFlow = filterMapList.get(Math.abs(key)%numberOfMapsToUse).get(strongerKey);
-						fwrt.addPacket((ErfPacketHeader)nextblock.getMyPktHdr(), nextblock.getMyData());
-						numberOfPackets++;
-						if(numberOfPackets%50000==0)
-						{
-							System.out.println("NumberOfPackets=" + numberOfPackets);
-							System.out.println("Percentage Done: " + frd.getBytesRead() / (float) frd.getCapFileSizeInBytes());
-						}
-						
-						//filterMap.remove(tempFiveTuple.getKey());
-					}
-				}
+				if(conflictingClassifications.get(appId)>100)
+					System.out.println(appId +": " + conflictingClassifications.get(appId));
 			}
-
-			System.out.println("Total Number of Packets = " + numberOfPackets);
-			fwrt.close();
+		
 			filterMapList.clear();
 
 		} catch (Exception e)

@@ -124,7 +124,7 @@ public class PCapFileReader implements CaptureFileReader
 	 * @throws ErfFileException
 	 * @throws IOException
 	 */
-	private byte[][] readAllCapRawData(String fileName) throws PCapFileException
+	private byte[][] readAllCapRawData(String fileName) throws IOException
 	{
 		InputStream in = null;
 		try
@@ -141,7 +141,7 @@ public class PCapFileReader implements CaptureFileReader
 		}
 		catch (Exception ex)
 		{
-			throw new PCapFileException(ex.toString());
+			throw new IOException(ex.toString());
 		}
 		finally
 		{
@@ -274,9 +274,10 @@ public class PCapFileReader implements CaptureFileReader
 	 * @param fileName
 	 * @return all cap data as byte[][] array of byte arrays.
 	 * each byte array is a packet in the cap file (udp,tcp...etc)
+	 * @throws IOException 
 	 * @throws ErfFileException
 	 */
-	public static byte[][] readCapRawData(String fileName) throws PCapFileException
+	public static byte[][] readCapRawData(String fileName) throws IOException
 	{
 		PCapFileReader rd = new PCapFileReader();
 		return rd.readAllCapRawData(fileName);

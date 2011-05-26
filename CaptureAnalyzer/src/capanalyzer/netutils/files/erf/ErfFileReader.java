@@ -78,9 +78,10 @@ public class ErfFileReader implements CaptureFileReader
 	{
 		myPHDR = new ErfPacketHeader();
 		myPHDR = myPHDR.readNextPcktHeader(in);
-
+		
 		if (myPHDR != null)
 		{
+			
 			if (myPHDR.pktWlen16Uint > MAX_PACKET_SIZE)
 				throw new IOException("Corrupted file !!! illegal packet size : "+myPHDR.pktWlen16Uint);
 			
@@ -96,7 +97,7 @@ public class ErfFileReader implements CaptureFileReader
 			
 			prevBytesRead = bytesRead;
 			bytesRead += ErfPacketHeader.HEADER_SIZE + myPHDR.pktWlen16Uint + (myPHDR.pktRlen16Uint - myPHDR.pktWlen16Uint - ErfPacketHeader.HEADER_SIZE);
-			
+		
 			return toReturn;
 		}
 		
@@ -227,6 +228,7 @@ public class ErfFileReader implements CaptureFileReader
 		{
 			return null;
 		}
+	
 		return new ErfBlock(myPHDR,nextpkt);
 	}
 

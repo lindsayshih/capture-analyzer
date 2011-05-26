@@ -8,14 +8,11 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import capanalyzer.GlobalConfig;
-import capanalyzer.database.ConnectionPool;
 import capanalyzer.netutils.build.FiveTuple;
 import capanalyzer.netutils.build.IPPacket;
 import capanalyzer.netutils.files.CaptureFileBlock;
@@ -24,33 +21,17 @@ import capanalyzer.netutils.files.CaptureFileReader;
 import capanalyzer.netutils.files.erf.ErfFileWriter;
 import capanalyzer.netutils.files.erf.ErfPacketHeader;
 
-public class FilterCaptureFile
+public class FilterCaptureFileFromFlowsFile
 {
-	static String inputErfFile = "c:\\Capture_Files\\udp_1_packet_filter_3rd_Try.erf";
+	static String inputErfFile = "e:\\udp_1_packet_filter_3rd_Try.erf";
 	
-	static String outputEerfFile = "c:\\Capture_Files\\udp_1_packet_filter_Not_DHT_Not_e42104.erf";
+	static String outputEerfFile = "e:\\udp_1_packet_filter_Unknown_Traffic.erf";
 	
-	static String tempQueryResultsFile = "e:/tempQueryResults.csv";
-	
-	static String dbTableName = "all_flows_payload";
-	
-	static int filterNumberOfPackets = 1;
+	static String flowsFile = "c:/Unknown_1_Packet_Filter.csv";
 	
 	static int flowType = 17;
 	
 	static int numberOfMapsToUse = 4;
-
-	/** JDBC driver name */
-	private static String driverName;
-
-	/** JDBC connection URL */
-	private static String connURL;
-
-	/** JDBC connection username */
-	private static String username;
-
-	/** JDBC connection password */
-	private static String password;
 
 	public static void main(String[] args) throws IOException, NetUtilsException
 	{
@@ -60,29 +41,16 @@ public class FilterCaptureFile
 		
 		CaptureFileBlock nextblock = null;
 
-		setMySQLConnectInfo();
-		Connection con = getConnectionPool().getConnection();
-
-		//List<Map<String, int[]>> filterMapList = new ArrayList<Map<String, int[]>>();
-		//List<Map<Long, int[]>> filterMapList = new ArrayList<Map<Long, int[]>>();
-		List<Map<Long, long[]>> filterMapList = new ArrayList<Map<Long, long[]>>();
+		List<Map<Long, Boolean>> filterMapList = new ArrayList<Map<Long, Boolean>>();
 		for (int i = 0; i < numberOfMapsToUse; i++)
 		{
-			//filterMapList.add(new HashMap<String, int[]>());
-			//filterMapList.add(new HashMap<Long, int[]>());
-			filterMapList.add(new HashMap<Long, long[]>());
+			filterMapList.add(new HashMap<Long, Boolean>());
 		}
 		
 		try
 		{
-			System.out.println("Going to execute Query");			
-			//con.createStatement().executeQuery("SELECT source_ip,source_port,dest_ip,dest_port,flow_type,start_time,duration FROM " + dbTableName + " a where flow_type=" + flowType + " and number_of_packets=" + filterNumberOfPackets + " INTO OUTFILE '" + tempQueryResultsFile + "' FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n'");
-			con.createStatement().executeQuery("SELECT source_ip,source_port,dest_ip,dest_port,flow_type,start_time,duration FROM " + dbTableName + " a where flow_type=" + flowType + " and number_of_packets=" + filterNumberOfPackets + " and first_packet_payload not LIKE '%d1:ad2%' and first_packet_payload not LIKE '%d1:rd2%' and first_packet_payload not REGEXP x'e42104' INTO OUTFILE '" + tempQueryResultsFile + "' FIELDS TERMINATED BY ',' LINES TERMINATED BY '\n'");
-			con.close();
-			System.out.println("Done executing Query");
-
 			System.out.println("Going to populate map");
-			FileInputStream fstream = new FileInputStream(tempQueryResultsFile);
+			FileInputStream fstream = new FileInputStream(flowsFile);
 			DataInputStream in = new DataInputStream(fstream);
 			BufferedReader br = new BufferedReader(new InputStreamReader(in));
 			String record;
@@ -91,30 +59,28 @@ public class FilterCaptureFile
 			while ((record = br.readLine()) != null)   
 			{
 				String[] recordArray = record.split(",");
-				long sourceIp = Long.parseLong(recordArray[0]);
-				int sourcePort = Integer.parseInt(recordArray[1]);
-				long destIp = Long.parseLong(recordArray[2]);
-				int destPort = Integer.parseInt(recordArray[3]);
-				int flowType = Integer.parseInt(recordArray[4]);
-				long startTime = Long.parseLong(recordArray[5]);
-				long duration = Long.parseLong(recordArray[6]);
+				if(recordArray[0].equals("pckt"))
+				{
+					long sourceIp = Long.parseLong(recordArray[1],16);
+					long destIp = Long.parseLong(recordArray[2],16);
+					int sourcePort = Integer.parseInt(recordArray[3], 16);
+					int destPort = Integer.parseInt(recordArray[4], 16);
+					int flowType = Integer.parseInt(recordArray[5]);
+					
+					FiveTuple fiveT = new FiveTuple(sourceIp, sourcePort, destIp, destPort, flowType);
+					
+					long key = fiveT.longHashCode();
+					if(filterMapList.get((int)(key%numberOfMapsToUse)).containsKey(key)==false)
+					{
+						filterMapList.get((int)(key%numberOfMapsToUse)).put(key, true);
+						numberOfUniqeFlows++;
+					}
 				
-				FiveTuple fiveT = new FiveTuple(sourceIp, sourcePort, destIp, destPort, flowType);
-				//int key = fiveT.hashCode();
-				//String strongerKey = fiveT.getKey();
-				long key = fiveT.longHashCode();
-				if(filterMapList.get((int)(key%numberOfMapsToUse)).containsKey(key)==false)
-				{
-					//filterMapList.get((int)(key%numberOfMapsToUse)).put(key, new int[]{(int) (startTime/1000000), duration});
-					filterMapList.get((int)(key%numberOfMapsToUse)).put(key, new long[]{ startTime, duration});
-					numberOfUniqeFlows++;
-				}
-				//fiveT = null;
-				numberOfFlows++;
-				if(numberOfFlows%1000000==0)
-				{
-					System.out.println("numberOfFlows=" + numberOfFlows);
-					//System.gc();
+					numberOfFlows++;
+					if(numberOfFlows%1000000==0)
+					{
+						System.out.println("numberOfFlows=" + numberOfFlows);
+					}
 				}
 			}
 			in.close();
@@ -128,14 +94,9 @@ public class FilterCaptureFile
 				if (IPPacket.statIsIpPacket(nextblock.getMyData()))
 				{
 					FiveTuple fiveT = new FiveTuple(nextblock.getMyData(), false);		
-					//int key = fiveT.hashCode();
-					//String strongerKey = fiveT.getKey();
 					long key = fiveT.longHashCode();
-					long packetTime = nextblock.getMyPktHdr().getTime();
-					//if(filterMapList.get((int)(key%numberOfMapsToUse)).containsKey(key) && ((packetTime > filterMapList.get((int)(key%numberOfMapsToUse)).get(key)[0]*1000000L) && (packetTime < (filterMapList.get((int)(key%numberOfMapsToUse)).get(key)[0]*1000000L+1000000L)+filterMapList.get((int)(key%numberOfMapsToUse)).get(key)[1])))
-					if(fiveT.getMyType()==flowType && filterMapList.get((int)(key%numberOfMapsToUse)).containsKey(key) && (packetTime >= filterMapList.get((int)(key%numberOfMapsToUse)).get(key)[0] && (packetTime <= filterMapList.get((int)(key%numberOfMapsToUse)).get(key)[0]+filterMapList.get((int)(key%numberOfMapsToUse)).get(key)[1])))
+					if(fiveT.getMyType()==flowType && filterMapList.get((int)(key%numberOfMapsToUse)).containsKey(key))
 					{
-						//short numOfPacketsInFlow = filterMapList.get(Math.abs(key)%numberOfMapsToUse).get(strongerKey);
 						fwrt.addPacket((ErfPacketHeader)nextblock.getMyPktHdr(), nextblock.getMyData());
 						numberOfPackets++;
 						if(numberOfPackets%50000==0)
@@ -158,27 +119,6 @@ public class FilterCaptureFile
 			System.out.println("Exception Caught");
 			e.printStackTrace();
 		}
-	}
-
-	/**
-	 * Creates a new connection pool object
-	 * 
-	 * @return ConnectionPool
-	 */
-	public static ConnectionPool getConnectionPool()
-	{
-		return (new ConnectionPool(1, driverName, connURL, username, password));
-	}
-
-	/**
-	 * Sets fields to values required to connect to a sample MySQL database
-	 */
-	private static void setMySQLConnectInfo()
-	{
-		driverName = GlobalConfig.Database.getDriverName();
-		connURL = GlobalConfig.Database.getConnURL();
-		username = GlobalConfig.Database.getUsername();
-		password = GlobalConfig.Database.getPassword();
 	}
 	
 	/**

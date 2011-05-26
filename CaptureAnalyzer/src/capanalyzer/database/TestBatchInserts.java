@@ -90,32 +90,5 @@ public class TestBatchInserts
 
 			}
 		}
-
-		Iterator<Entry<Integer, List<Long>>> iter = results.entrySet().iterator();
-
-		System.out.println("size\t\t\tmin\t\t\tmax\t\t\tmean\t\t\tstddev");
-
-		while (iter.hasNext())
-		{
-			Entry<Integer, List<Long>> entry = (Entry<Integer, List<Long>>) iter.next();
-
-			List<Long> forRowCount = entry.getValue();
-
-			DescriptiveStatistics stats = new DescriptiveStatistics();
-			double rowCount = (Integer) entry.getKey();
-			for (Object val : forRowCount)
-			{
-				stats.addValue(rowCount / (double) ((Long) val).longValue());
-			}
-
-			double min = stats.getMin();
-			double max = stats.getMax();
-			double mean = stats.getMean();
-			double std = stats.getStandardDeviation();
-
-			System.out.println(rowCount + "\t\t\t" + min + "\t\t\t" + max + "\t\t\t" + mean + "\t\t\t" + std);
-
-		}
 	}
-
 }
