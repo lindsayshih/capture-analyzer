@@ -19,6 +19,7 @@ public class BaseAnalyzer implements IPacketAnalyzer
 				flowsDataStructure.getFlowInfoStruct(flowTuple).setStartTime(theFullPacket.getMyPktHdr().getTime());
 				flowsDataStructure.getFlowInfoStruct(flowTuple).setLastTime(theFullPacket.getMyPktHdr().getTime());	
 				flowsDataStructure.getFlowInfoStruct(flowTuple).setFirstPacketOffsetInCaptureFile(thePacketOffset);
+				flowsDataStructure.getFlowInfoStruct(flowTuple).setFirstPacketData(theFullPacket.getMyData());
 			}
 
 			flowsDataStructure.getFlowInfoStruct(flowTuple).incrementNumberOfPackets(); //needs to be first
@@ -26,6 +27,15 @@ public class BaseAnalyzer implements IPacketAnalyzer
 			flowsDataStructure.getFlowInfoStruct(flowTuple).addIpg(theFullPacket.getMyPktHdr().getTime());
 			flowsDataStructure.getFlowInfoStruct(flowTuple).addPacketSize(theFullPacket.getMyData().length);
 			flowsDataStructure.getFlowInfoStruct(flowTuple).setLastTime(theFullPacket.getMyPktHdr().getTime());
+			
+			if(flowsDataStructure.getFlowInfoStruct(flowTuple).getNumberOfPackets()==2)
+				flowsDataStructure.getFlowInfoStruct(flowTuple).setSecondPacketData(theFullPacket.getMyData());
+			else if(flowsDataStructure.getFlowInfoStruct(flowTuple).getNumberOfPackets()==3)
+				flowsDataStructure.getFlowInfoStruct(flowTuple).setThirdPacketData(theFullPacket.getMyData());	
+			else if(flowsDataStructure.getFlowInfoStruct(flowTuple).getNumberOfPackets()==4)
+				flowsDataStructure.getFlowInfoStruct(flowTuple).setForthPacketData(theFullPacket.getMyData());	
+			else if(flowsDataStructure.getFlowInfoStruct(flowTuple).getNumberOfPackets()==5)
+				flowsDataStructure.getFlowInfoStruct(flowTuple).setFifthPacketData(theFullPacket.getMyData());
 
 		} catch (NetUtilsException e)
 		{
@@ -51,7 +61,7 @@ public class BaseAnalyzer implements IPacketAnalyzer
 		tempFlowDataStructureForDB.addLongResult("duration", Math.abs((tempFlowDataStructure.getLastTime() - tempFlowDataStructure.getStartTime())));
 		tempFlowDataStructureForDB.addLongResult("number_of_packets", tempFlowDataStructure.getNumberOfPackets());
 
-		tempFlowDataStructureForDB.addLongResult("size", tempFlowDataStructure.getTotalPacketSizes());
+		tempFlowDataStructureForDB.addLongResult("size", tempFlowDataStructure.getTotalPacketSizes());		
 		tempFlowDataStructureForDB.addIntegerResult("min_packet_size", tempFlowDataStructure.getMinPacketSize());
 		tempFlowDataStructureForDB.addIntegerResult("average_packet_size", (int) (tempFlowDataStructure.getTotalPacketSizes() / tempFlowDataStructure.getNumberOfPackets()));
 		tempFlowDataStructureForDB.addIntegerResult("max_packet_size", tempFlowDataStructure.getMaxPacketSize());
@@ -65,6 +75,12 @@ public class BaseAnalyzer implements IPacketAnalyzer
 		tempFlowDataStructureForDB.addLongResult("tcp_init_max_ipg", (tempFlowDataStructure.getNumberOfPackets() > 1 && tempFlowDataStructure.isTcpFullStart()) ? tempFlowDataStructure.getTcpInitMaxIpg() : 0);
 		
 		tempFlowDataStructureForDB.addLongResult("flow_offset_in_cap", tempFlowDataStructure.getFirstPacketOffsetInCaptureFile());
+		
+		tempFlowDataStructureForDB.addByteArrayResult("first_packet_payload", tempFlowDataStructure.getFirstPacketData());
+		tempFlowDataStructureForDB.addByteArrayResult("second_packet_payload", tempFlowDataStructure.getSecondPacketData());		
+		tempFlowDataStructureForDB.addByteArrayResult("third_packet_payload", tempFlowDataStructure.getThirdPacketData());
+		tempFlowDataStructureForDB.addByteArrayResult("forth_packet_payload", tempFlowDataStructure.getForthPacketData());
+		tempFlowDataStructureForDB.addByteArrayResult("fifth_packet_payload", tempFlowDataStructure.getFifthPacketData());
 		
 		flowsDataStructure.removeFlow(theFlowTuple);
 		tempFlowDataStructureForDB = null;

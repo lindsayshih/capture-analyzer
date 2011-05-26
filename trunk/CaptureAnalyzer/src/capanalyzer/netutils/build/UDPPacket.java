@@ -239,6 +239,7 @@ public class UDPPacket extends IPPacket
 		if (_udpDataBytes == null && _isSniffedPkt)
 		{
 			_udpDataBytes = new byte[getUDPLength() - UDP_HEADER_LENGTH];
+			//System.out.println("myPacket.length=" + myPacket.length + "getUDPLength()=" + getUDPLength() + ",  _udpDataBytes.length=" +  _udpDataBytes.length);
 			System.arraycopy(myPacket, _udpOffset + UDP_HEADER_LENGTH, _udpDataBytes, 0, _udpDataBytes.length);
 		}
 		return _udpDataBytes;

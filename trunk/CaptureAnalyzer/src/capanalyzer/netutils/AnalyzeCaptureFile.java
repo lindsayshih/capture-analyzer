@@ -19,7 +19,9 @@ import capanalyzer.netutils.files.CaptureFileReader;
 
 public class AnalyzeCaptureFile
 {
-	static String inputErfFile = "d:\\capture_012_15_06_2009_5G.erf";
+	static String inputErfFile = "C:\\Capture_Files\\capture_012_15_06_2009.erf";
+	
+	static String dbTableName = "all_flows_5_Packets_payload_Old";
 
 	/** JDBC driver name */
 	private static String driverName;
@@ -36,7 +38,7 @@ public class AnalyzeCaptureFile
 	public static void main(String[] args) throws IOException, NetUtilsException
 	{
 		final long agingTime = GlobalConfig.CaptureFileReadParams.getAgingTime() * 1000000;
-		final int numOfIpPacketsBetweenChecks = 6000000;
+		final int numOfIpPacketsBetweenChecks = 5000000;
 		
 		List<IPacketAnalyzer> packetAnalyzers = new ArrayList<IPacketAnalyzer>();
 		packetAnalyzers.add(new BaseAnalyzer());
@@ -129,13 +131,17 @@ public class AnalyzeCaptureFile
 
 		Map<String, Integer> resultIntegerMap = flowsDataStructureForDb.getFlowInfoForDbStruct(listOfFlowsThatShouldAgeFiveTuples.get(0)).getIntegerMap();
 		Map<String, Long> resultLongMap = flowsDataStructureForDb.getFlowInfoForDbStruct(listOfFlowsThatShouldAgeFiveTuples.get(0)).getLongMap();
+		Map<String, byte[]> resultByteArrayMap = flowsDataStructureForDb.getFlowInfoForDbStruct(listOfFlowsThatShouldAgeFiveTuples.get(0)).getByteArrayMap();
 		Set<String> allIntResults = resultIntegerMap.keySet();
 		Set<String> allLongResults = resultLongMap.keySet();
-
+		Set<String> allByteArrayResults = resultByteArrayMap.keySet();
+		
 		for (String intKey : allIntResults)
 			allResultNames.add(intKey);
 		for (String longKey : allLongResults)
 			allResultNames.add(longKey);
+		for (String byteArrayKey : allByteArrayResults)
+			allResultNames.add(byteArrayKey);
 
 		for (String resultName : allResultNames)
 		{
@@ -145,7 +151,7 @@ public class AnalyzeCaptureFile
 		resultNames = resultNames.substring(0, resultNames.length() - 1);
 		resultValues = resultValues.substring(0, resultValues.length() - 1);
 
-		pstmt = con.prepareStatement("INSERT INTO all_flows(" + resultNames + ") VALUES (" + resultValues + ")");
+		pstmt = con.prepareStatement("INSERT INTO " + dbTableName + "(" + resultNames + ") VALUES (" + resultValues + ")");
 		con.setAutoCommit(false);
 		con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 
@@ -153,6 +159,7 @@ public class AnalyzeCaptureFile
 		{
 			resultIntegerMap = flowsDataStructureForDb.getFlowInfoForDbStruct(fiveTuple).getIntegerMap();
 			resultLongMap = flowsDataStructureForDb.getFlowInfoForDbStruct(fiveTuple).getLongMap();
+			resultByteArrayMap = flowsDataStructureForDb.getFlowInfoForDbStruct(fiveTuple).getByteArrayMap();
 
 			for (int j = 0; j < allResultNames.size(); j++)
 			{
@@ -160,13 +167,17 @@ public class AnalyzeCaptureFile
 					pstmt.setInt(j + 1, resultIntegerMap.get(allResultNames.get(j)));
 				else if (resultLongMap.containsKey(allResultNames.get(j)))
 					pstmt.setLong(j + 1, resultLongMap.get(allResultNames.get(j)));
+				else if (resultByteArrayMap.containsKey(allResultNames.get(j)))
+					pstmt.setBytes(j + 1, resultByteArrayMap.get(allResultNames.get(j)));
 			}
 			pstmt.addBatch();
 
 			resultIntegerMap.clear();
 			resultLongMap.clear();
+			resultByteArrayMap.clear();
 			resultIntegerMap = null;
 			resultLongMap = null;
+			resultByteArrayMap = null;
 			flowsDataStructureForDb.removeFlow(fiveTuple);
 		}
 
@@ -179,10 +190,12 @@ public class AnalyzeCaptureFile
 		allResultNames.clear();
 		allIntResults.clear();
 		allLongResults.clear();
+		allByteArrayResults.clear();
 		listOfFlowsThatShouldAgeFiveTuples = null;
 		allResultNames = null;
 		allIntResults = null;
 		allLongResults = null;
+		allByteArrayResults = null;
 		
 		System.gc();
 	}
@@ -195,10 +208,10 @@ public class AnalyzeCaptureFile
 		try
 		{
 			if(dropTableIfExist)
-				con.createStatement().execute("DROP TABLE IF EXISTS `capture_analyzer`.`all_flows`");
+				con.createStatement().execute("DROP TABLE IF EXISTS `capture_analyzer`.`" + dbTableName + "`");
 		
 			con.createStatement().execute(
-					"CREATE TABLE  `capture_analyzer`.`all_flows` " + 
+					"CREATE TABLE  `capture_analyzer`.`" + dbTableName + "` " + 
 					"(`flow_id` int(10) unsigned NOT NULL DEFAULT '0'," + 
 					"`source_ip` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
 					"`source_port` int(10) unsigned NOT NULL DEFAULT '0'," + 
@@ -209,7 +222,7 @@ public class AnalyzeCaptureFile
 					"`start_time` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
 					"`duration` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
 					"`number_of_packets` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
-					"`size` int(10) unsigned NOT NULL DEFAULT '0'," + 
+					"`size` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
 					"`min_packet_size` int(10) unsigned NOT NULL DEFAULT '0'," + 
 					"`average_packet_size` int(10) unsigned NOT NULL DEFAULT '0'," + 
 					"`max_packet_size` int(10) unsigned NOT NULL DEFAULT '0'," + 
@@ -219,7 +232,15 @@ public class AnalyzeCaptureFile
 					"`tcp_init_min_ipg` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
 					"`tcp_init_average_ipg` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
 					"`tcp_init_max_ipg` bigint(20) unsigned NOT NULL DEFAULT '0'," + 
-					"`flow_offset_in_cap` bigint(20) unsigned NOT NULL DEFAULT '0') " + 
+					"`flow_offset_in_cap` bigint(20) unsigned NOT NULL DEFAULT '0'," +
+					"`nbar_app_id` int(10) unsigned NOT NULL DEFAULT '0'," + 
+					"`nbar_app_id_2` int(10) unsigned NOT NULL DEFAULT '0'," + 
+					"`nbar_app_id_3` int(10) unsigned NOT NULL DEFAULT '0'," + 
+					"`first_packet_payload` BLOB DEFAULT NULL," + 
+					"`second_packet_payload` BLOB DEFAULT NULL," +
+					"`third_packet_payload` BLOB DEFAULT NULL," +
+					"`forth_packet_payload` BLOB DEFAULT NULL," +
+					"`fifth_packet_payload` BLOB DEFAULT NULL) " + 
 					"ENGINE=MyISAM DEFAULT CHARSET=latin1 " + 
 					"PARTITION BY RANGE (flow_type) (" +
 					"PARTITION ICMP VALUES LESS THAN (2)," +

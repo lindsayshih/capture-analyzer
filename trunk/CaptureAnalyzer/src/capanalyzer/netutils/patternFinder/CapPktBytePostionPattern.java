@@ -439,7 +439,7 @@ public class CapPktBytePostionPattern extends CapSearch
 
 		CapPktBytePostionPattern finder = new CapPktBytePostionPattern();
 
-		String[] result = finder.getCapPktBytePostionPattern("d:/udp_1_packet_filter_Not_DHT.erf", 1600000, 1);
+		String[] result = finder.getCapPktBytePostionPattern("e:/udp_1_packet_filter_Not_DHT.erf", 2300000, 1);
 		
 		for (int i = 0; i < result.length; i++)
 		{

@@ -1,8 +1,11 @@
 package capanalyzer.netutils;
 
+import capanalyzer.netutils.build.EthernetPacket;
 import capanalyzer.netutils.build.FiveTuple;
+import capanalyzer.netutils.build.IPPacket;
 import capanalyzer.netutils.build.IPPacketType;
 import capanalyzer.netutils.build.TCPPacket;
+import capanalyzer.netutils.build.UDPPacket;
 import capanalyzer.netutils.files.CaptureFileBlock;
 
 public class FlowInfoStruct
@@ -42,6 +45,12 @@ public class FlowInfoStruct
 	private boolean hadAck = false;
 	
 	private long firstPacketOffsetInCaptureFile = 0;
+	
+	byte[] firstPacketData = null;
+	byte[] secondPacketData = null;
+	byte[] thirdPacketData = null;
+	byte[] forthPacketData = null;
+	byte[] fifthPacketData = null;
 
 	public FlowInfoStruct(FiveTuple theFlowTuple)
 	{
@@ -342,6 +351,316 @@ public class FlowInfoStruct
 	public void setFirstPacketOffsetInCaptureFile(long firstPacketOffsetInCaptureFile)
 	{
 		this.firstPacketOffsetInCaptureFile = firstPacketOffsetInCaptureFile;
+	}
+	
+	public byte[] getFirstPacketData()
+	{
+		return firstPacketData;
+	}
+	
+	/**
+	 * 
+	 * @param packet
+	 */
+	public void setFirstPacketData(byte[] packet)
+	{
+		if (packet == null || packet.length == 0)
+		{
+			return;
+		}
+		
+		try 
+		{
+			if (EthernetPacket.statIsIpPacket(packet))
+			{
+				if(IPPacket.isFragment(packet)==false)
+				{
+					if (IPPacket.getIpProtocolType(packet) == IPPacketType.TCP)
+					{
+						TCPPacket tcppkt = new TCPPacket(packet);
+						if (tcppkt.isSyn()==true && tcppkt.isAck()==false)
+						{
+							firstPacketData = new byte[] {0x73, 0x79, 0x6e, 0x2e}; //syn.
+						} 
+						else if (tcppkt.isSyn()==true && tcppkt.isAck()==true)
+						{
+							firstPacketData = new byte[] {0x73, 0x79, 0x6e, 0x61, 0x63, 0x6b, 0x2e};//synack.
+						} 
+						else
+						{
+							firstPacketData = tcppkt.getTCPData();
+						}
+					}
+					else if (IPPacket.getIpProtocolType(packet) == IPPacketType.UDP)
+					{
+						UDPPacket udppckt = new UDPPacket(packet);
+						firstPacketData = udppckt.getUDPData();
+					}
+					else
+					{
+						IPPacket pkt = new IPPacket(packet);
+						firstPacketData = pkt.getIPData();
+					}
+				}
+				else
+				{
+					if(IPPacket.isFirstFragment(packet)==true)
+						firstPacketData = new byte[] {0x66, 0x66, 0x72, 0x61, 0x67, 0x6d, 0x65, 0x6e, 0x74};//ffragment
+					else
+						firstPacketData = new byte[] {0x6d, 0x66, 0x72, 0x61, 0x67, 0x6d, 0x65, 0x6e, 0x74};//mfragment
+				}
+			}
+		} catch (Exception e) {
+			// Do Nothing
+		}
+	}
+	
+	public byte[] getSecondPacketData()
+	{
+		return secondPacketData;
+	}
+	
+	/**
+	 * 
+	 * @param packet
+	 */
+	public void setSecondPacketData(byte[] packet)
+	{
+		if (packet == null || packet.length == 0)
+		{
+			return;
+		}
+		
+		try 
+		{
+			if (EthernetPacket.statIsIpPacket(packet))
+			{
+				if(IPPacket.isFragment(packet)==false)
+				{
+					if (IPPacket.getIpProtocolType(packet) == IPPacketType.TCP)
+					{
+						TCPPacket tcppkt = new TCPPacket(packet);
+						if (tcppkt.isSyn()==true && tcppkt.isAck()==false)
+						{
+							secondPacketData = new byte[] {0x73, 0x79, 0x6e, 0x2e};
+						} 
+						else if (tcppkt.isSyn()==true && tcppkt.isAck()==true)
+						{
+							secondPacketData = new byte[] {0x73, 0x79, 0x6e, 0x61, 0x63, 0x6b, 0x2e};
+						} 
+						else
+						{
+							secondPacketData = tcppkt.getTCPData();
+						}
+					}
+					else if (IPPacket.getIpProtocolType(packet) == IPPacketType.UDP)
+					{
+						UDPPacket udppckt = new UDPPacket(packet);
+						secondPacketData = udppckt.getUDPData();
+					}
+					else
+					{
+						IPPacket pkt = new IPPacket(packet);
+						secondPacketData = pkt.getIPData();
+					}
+				}
+				else
+				{
+					if(IPPacket.isFirstFragment(packet)==true)
+						secondPacketData = new byte[] {0x66, 0x66, 0x72, 0x61, 0x67, 0x6d, 0x65, 0x6e, 0x74};
+					else
+						secondPacketData = new byte[] {0x6d, 0x66, 0x72, 0x61, 0x67, 0x6d, 0x65, 0x6e, 0x74};
+				}
+			}
+		} catch (Exception e) {
+			// Do Nothing
+		}
+	}
+	
+	public byte[] getThirdPacketData()
+	{
+		return thirdPacketData;
+	}
+	
+	/**
+	 * 
+	 * @param packet
+	 */
+	public void setThirdPacketData(byte[] packet)
+	{
+		if (packet == null || packet.length == 0)
+		{
+			return;
+		}
+		
+		try 
+		{
+			if (EthernetPacket.statIsIpPacket(packet))
+			{
+				if(IPPacket.isFragment(packet)==false)
+				{
+					if (IPPacket.getIpProtocolType(packet) == IPPacketType.TCP)
+					{
+						TCPPacket tcppkt = new TCPPacket(packet);
+						if (tcppkt.isSyn()==true && tcppkt.isAck()==false)
+						{
+							thirdPacketData = new byte[] {0x73, 0x79, 0x6e, 0x2e};
+						} 
+						else if (tcppkt.isSyn()==true && tcppkt.isAck()==true)
+						{
+							thirdPacketData = new byte[] {0x73, 0x79, 0x6e, 0x61, 0x63, 0x6b, 0x2e};
+						} 
+						else
+						{
+							thirdPacketData = tcppkt.getTCPData();
+						}
+					}
+					else if (IPPacket.getIpProtocolType(packet) == IPPacketType.UDP)
+					{
+						UDPPacket udppckt = new UDPPacket(packet);
+						thirdPacketData = udppckt.getUDPData();
+					}
+					else
+					{
+						IPPacket pkt = new IPPacket(packet);
+						thirdPacketData = pkt.getIPData();
+					}
+				}
+				else
+				{
+					if(IPPacket.isFirstFragment(packet)==true)
+						thirdPacketData = new byte[] {0x66, 0x66, 0x72, 0x61, 0x67, 0x6d, 0x65, 0x6e, 0x74};
+					else
+						thirdPacketData = new byte[] {0x6d, 0x66, 0x72, 0x61, 0x67, 0x6d, 0x65, 0x6e, 0x74};
+				}
+			}
+		} catch (Exception e) {
+			// Do Nothing
+		}
+	}
+	
+	public byte[] getForthPacketData()
+	{
+		return forthPacketData;
+	}
+	
+	/**
+	 * 
+	 * @param packet
+	 */
+	public void setForthPacketData(byte[] packet)
+	{
+		if (packet == null || packet.length == 0)
+		{
+			return;
+		}
+		
+		try 
+		{
+			if (EthernetPacket.statIsIpPacket(packet))
+			{
+				if(IPPacket.isFragment(packet)==false)
+				{
+					if (IPPacket.getIpProtocolType(packet) == IPPacketType.TCP)
+					{
+						TCPPacket tcppkt = new TCPPacket(packet);
+						if (tcppkt.isSyn()==true && tcppkt.isAck()==false)
+						{
+							forthPacketData = new byte[] {0x73, 0x79, 0x6e, 0x2e};
+						} 
+						else if (tcppkt.isSyn()==true && tcppkt.isAck()==true)
+						{
+							forthPacketData = new byte[] {0x73, 0x79, 0x6e, 0x61, 0x63, 0x6b, 0x2e};
+						} 
+						else
+						{
+							forthPacketData = tcppkt.getTCPData();
+						}
+					}
+					else if (IPPacket.getIpProtocolType(packet) == IPPacketType.UDP)
+					{
+						UDPPacket udppckt = new UDPPacket(packet);
+						forthPacketData = udppckt.getUDPData();
+					}
+					else
+					{
+						IPPacket pkt = new IPPacket(packet);
+						forthPacketData = pkt.getIPData();
+					}
+				}
+				else
+				{
+					if(IPPacket.isFirstFragment(packet)==true)
+						forthPacketData = new byte[] {0x66, 0x66, 0x72, 0x61, 0x67, 0x6d, 0x65, 0x6e, 0x74};
+					else
+						forthPacketData = new byte[] {0x6d, 0x66, 0x72, 0x61, 0x67, 0x6d, 0x65, 0x6e, 0x74};
+				}
+			}
+		} catch (Exception e) {
+			// Do Nothing
+		}
+	}
+	
+	public byte[] getFifthPacketData()
+	{
+		return fifthPacketData;
+	}
+	
+	/**
+	 * 
+	 * @param packet
+	 */
+	public void setFifthPacketData(byte[] packet)
+	{
+		if (packet == null || packet.length == 0)
+		{
+			return;
+		}
+		
+		try 
+		{
+			if (EthernetPacket.statIsIpPacket(packet))
+			{
+				if(IPPacket.isFragment(packet)==false)
+				{
+					if (IPPacket.getIpProtocolType(packet) == IPPacketType.TCP)
+					{
+						TCPPacket tcppkt = new TCPPacket(packet);
+						if (tcppkt.isSyn()==true && tcppkt.isAck()==false)
+						{
+							fifthPacketData = new byte[] {0x73, 0x79, 0x6e, 0x2e};
+						} 
+						else if (tcppkt.isSyn()==true && tcppkt.isAck()==true)
+						{
+							fifthPacketData = new byte[] {0x73, 0x79, 0x6e, 0x61, 0x63, 0x6b, 0x2e};
+						} 
+						else
+						{
+							fifthPacketData = tcppkt.getTCPData();
+						}
+					}
+					else if (IPPacket.getIpProtocolType(packet) == IPPacketType.UDP)
+					{
+						UDPPacket udppckt = new UDPPacket(packet);
+						fifthPacketData = udppckt.getUDPData();
+					}
+					else
+					{
+						IPPacket pkt = new IPPacket(packet);
+						fifthPacketData = pkt.getIPData();
+					}
+				}
+				else
+				{
+					if(IPPacket.isFirstFragment(packet)==true)
+						fifthPacketData = new byte[] {0x66, 0x66, 0x72, 0x61, 0x67, 0x6d, 0x65, 0x6e, 0x74};
+					else
+						fifthPacketData = new byte[] {0x6d, 0x66, 0x72, 0x61, 0x67, 0x6d, 0x65, 0x6e, 0x74};
+				}
+			}
+		} catch (Exception e) {
+			// Do Nothing
+		}
 	}
 
 }

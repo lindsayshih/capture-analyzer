@@ -676,10 +676,23 @@ public class IPPacket extends EthernetPacket
 	public static boolean isFragment(byte[] thePacket)
 	{
 		short b = (short) ByteUtils.getByteNetOrderTo_uint16(thePacket, ETHERNET_HEADER_LENGTH+IP_FRAG_POS);
-		
-		//System.out.println("Flags= " + b + ", Is Fragment=" + (boolean)(((b & 0x1fff )!= 0 ) | (( b & 0x2000) != 0)));
-		
+			
 		return ((b & 0x1fff )!= 0 ) | (( b & 0x2000) != 0);
+	}
+	
+	/**
+	 * static method for faster performance<br>
+	 * <br>
+	 * <br>
+	 * @pre assuming packet is a valid IP packet (not checking it here)<br>
+	 * @param thePacket<br>
+	 * @return true if packet is a 1st fragment and false otherwise<br>
+	 */
+	public static boolean isFirstFragment(byte[] thePacket)
+	{
+		short b = (short) ByteUtils.getByteNetOrderTo_uint16(thePacket, ETHERNET_HEADER_LENGTH+IP_FRAG_POS);
+
+		return ((b & 0x1fff ) == 0 ) && (( b & 0x2000) != 0);
 	}
 
 	/**
@@ -725,5 +738,3 @@ class UnsupportedProtocol extends RuntimeException
 		super(message);
 	}
 }
-
-

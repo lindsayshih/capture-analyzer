@@ -8,6 +8,7 @@ public class FlowInfoStructForDB
 	private Map<String, Integer> integerMap = null;
 	private Map<String, Long> longMap = null;
 	private Map<String, String> stringMap = null;
+	private Map<String, byte[]> byteArrayMap = null;
 	
 	public FlowInfoStructForDB()
 	{
@@ -43,6 +44,16 @@ public class FlowInfoStructForDB
 		stringMap.put(theResultName, theResultValue);
 	}
 	
+	public void addByteArrayResult(String theResultName, byte[] theResultValue)
+	{
+		if(byteArrayMap == null)
+		{
+			byteArrayMap = new HashMap<String, byte[]>();
+		}
+		
+		byteArrayMap.put(theResultName, theResultValue);
+	}
+	
 	/**
 	 * @return the integerMap
 	 */
@@ -65,6 +76,14 @@ public class FlowInfoStructForDB
 	public Map<String, String> getStringMap()
 	{
 		return stringMap;
+	}
+	
+	/**
+	 * @return the byteArrayMap
+	 */
+	public Map<String, byte[]> getByteArrayMap()
+	{
+		return byteArrayMap;
 	}
 	
 }
